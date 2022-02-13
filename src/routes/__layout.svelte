@@ -1,9 +1,8 @@
 <script context="module">
 	export const load = async (session) => {
-		console.log(session);
 		return {
 			props: {
-				route: session.url.pathname
+				route: session.page.path
 			}
 		}
 	};

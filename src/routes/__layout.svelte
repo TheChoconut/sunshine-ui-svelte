@@ -1,9 +1,12 @@
 <script context="module">
-	export const load = async ({ url }) => ({
-		props: {
-			route: url.pathname
+	export const load = async (session) => {
+		console.log(session);
+		return {
+			props: {
+				route: session.url.pathname
+			}
 		}
-	});
+	};
 </script>
 <script lang="ts">
   import "virtual:windi.css"

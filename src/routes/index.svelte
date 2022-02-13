@@ -1,6 +1,6 @@
 <script lang="ts">
 import DiGithubBadge from 'svelte-icons/di/DiGithubBadge.svelte'
-
+export const prerender = true;
 </script>
 <content>
   <div class="text-lg font-medium mb-4">

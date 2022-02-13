@@ -18,7 +18,6 @@
   import { draggable } from '$lib/DragDrop';
   import SettingPart from '$lib/components/SettingPart.svelte';
   import { onMount } from 'svelte';
-  export const ssr = false;
   let windowProps: (WindowProps | null) = null,
     updateApp: (app: SunshineApplication | {id: string;}) => void
   let title = '',

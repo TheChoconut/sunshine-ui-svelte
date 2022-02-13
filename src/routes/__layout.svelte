@@ -1,3 +1,10 @@
+<script context="module">
+	export const load = async ({ url }) => ({
+		props: {
+			route: url.pathname
+		}
+	});
+</script>
 <script lang="ts">
   import "virtual:windi.css"
   import Navbar from '$lib/Navbar.svelte'
@@ -8,6 +15,7 @@
   import { page } from '$app/stores';
   import PinDialog from '$lib/components/PinDialog.svelte';
 
+  export let route;
   onMount(() => {
     APIConfiguration.subscribe(async (a) => {
       if (a.token !== "") {
@@ -20,21 +28,22 @@
       if($page.url.pathname !== '/welcome') goto("/welcome");
     });
     if ($APIConfiguration.token === "") {
-      if ($page.url.pathname !== '/welcome') goto("/welcome");
+      if (route !== '/welcome') goto("/welcome");
     } else {
       StartWebSocketServer(false);
     }
   });
+  $: route = $page.url.pathname;
 </script>
 
 <div class="fixed left-0 top-0 -z-10 w-screen h-screen bg-gray-100">
 </div>
-{#if $page.url.pathname === '/welcome'}
+{#if route === '/welcome'}
   <slot />
 {:else}
   <Navbar />
   <container class="block container mx-auto flex">
-      <Sidebar route={$page.url.pathname} />
+      <Sidebar {route} />
     <slot />
   </container>
 {/if}

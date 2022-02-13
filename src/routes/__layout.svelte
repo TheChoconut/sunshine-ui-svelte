@@ -1,7 +1,7 @@
 <script context="module">
-	export const load = async (session) => ({
+	export const load = async ({ url }) => ({
 		props: {
-			key: session.url.pathname
+			key: url.pathname
 		}
 	});
 </script>
@@ -14,13 +14,10 @@
   import Sidebar from '$lib/components/Sidebar.svelte';
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
-import PinDialog from '$lib/components/PinDialog.svelte';
+  import PinDialog from '$lib/components/PinDialog.svelte';
 
   export let key;
   onMount(() => {
-    if ($theme === 'dark') {
-      document.querySelector('html').classList.add('dark')
-    }
     APIConfiguration.subscribe(async (a) => {
       if (a.token !== "") {
         let result = await StartWebSocketServer(false);

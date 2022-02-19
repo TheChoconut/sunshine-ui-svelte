@@ -2,7 +2,7 @@
 	export const load = async (session) => {
 		return {
 			props: {
-				route: session.page.path
+				route: session.url.pathname
 			}
 		}
 	};

@@ -101,7 +101,7 @@ export async function APIRequest<T extends keyof APIResponseTypes>(type: T, data
     return fetch(`https://${config.host}:${config.port}/${config.endpoints.api}/${type}`, { body: data ? JSON.stringify(data) : null, method: data ? 'POST' : 'GET', mode: 'cors', headers })
         .then((response) => response.json())
         .catch((err) => {
-            console.log(err);
+            console.debug('API request failed',err);
             return null;
         });
 }
@@ -121,9 +121,9 @@ export async function APIAuthenticate(password: string): Promise<boolean> {
 }
 
 export function invalidateAPIConfiguration(): void {
-    console.log('invalidateAPIConfiguration');
+    console.log('API configuration will be invalidated');
     if (ServerAPIEvents) {
-        console.log('invalidateAPIConfiguration: closing ServerAPIEvents');
+        console.debug('invalidateAPIConfiguration: closing ServerAPIEvents');
         ServerAPIEvents.close();
     }
     ServerAPIEvents = null;
@@ -133,7 +133,7 @@ export function invalidateAPIConfiguration(): void {
 function handleServerEvent(res: MessageEvent<string>) {
     try {
         const data = JSON.parse(res.data);
-        console.log(data);
+        console.debug('API server event',data);
         if (Object.prototype.hasOwnProperty.call(data, 'type')) {
             if (data.type === 'request_pin') pinDialog.set({ open: true, pin: '' });
         }
@@ -147,7 +147,7 @@ export async function TestConnection(checkForAuth: boolean, suppliedConfig?: API
     const result = await APIRequest('api_version')
         .then((result) => Number(result.api_version) >= 1 && (checkForAuth ? result.authenticated === "true" : true))
         .catch((err) => {
-            console.log(err);
+            console.log('Connection test failed',err);
             return false;
         });
     if (result) {

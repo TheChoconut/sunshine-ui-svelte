@@ -13,7 +13,7 @@
   },
   "devDependencies": {
     "@novacbn/svelte-codejar": "^0.1.1",
-    "@sveltejs/adapter-static": "next",
+    "@sveltejs/adapter-netlify": "next",
     "@sveltejs/kit": "next",
     "@typescript-eslint/eslint-plugin": "^5.12.1",
     "@typescript-eslint/parser": "^5.12.1",

@@ -28,7 +28,6 @@
         }
       }
     });
-    console.log($APIConfiguration);
     if ($APIConfiguration.token === "") {
       if (route !== '/welcome') {
         goto("/welcome");

@@ -9,17 +9,16 @@ export function localStore<T>(key: string, value: T): Writable<T> {
     try {
       storeInitialValue = JSON.parse(data);
     } catch (e) { 
-      console.log("Invalid APIConfiguration data: ", e)
+      console.debug("Invalid APIConfiguration data: ", e)
       localStorage.setItem(key, JSON.stringify(value)); 
     }
   }
-  console.log('initialStoreValue: ', storeInitialValue);
+  console.debug('initialStoreValue: ', storeInitialValue);
   const store = writable<T>(storeInitialValue);
   store.subscribe(val => {
     if (typeof localStorage == 'undefined') {
       return
     }
-    console.log(key, JSON.stringify(val), 'saved to localstorage');
     localStorage.setItem(key, JSON.stringify(val));
   })
 

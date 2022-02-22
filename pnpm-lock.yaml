@@ -3,7 +3,7 @@ lockfileVersion: 5.3
 specifiers:
   '@iconify/svelte': ^2.1.2
   '@novacbn/svelte-codejar': ^0.1.1
-  '@sveltejs/adapter-static': next
+  '@sveltejs/adapter-netlify': next
   '@sveltejs/kit': next
   '@typescript-eslint/eslint-plugin': ^5.12.1
   '@typescript-eslint/parser': ^5.12.1
@@ -28,7 +28,7 @@ dependencies:
 
 devDependencies:
   '@novacbn/svelte-codejar': 0.1.1
-  '@sveltejs/adapter-static': 1.0.0-next.28
+  '@sveltejs/adapter-netlify': 1.0.0-next.46
   '@sveltejs/kit': 1.0.0-next.281_svelte@3.46.4
   '@typescript-eslint/eslint-plugin': 5.12.1_aa3af6382115a42a71cc388b7b2c30b3
   '@typescript-eslint/parser': 5.12.1_eslint@8.9.0+typescript@4.5.5
@@ -86,6 +86,10 @@ packages:
     resolution: {integrity: sha512-ZnQMnLV4e7hDlUvw8H+U8ASL02SS2Gn6+9Ac3wGGLIe7+je2AeAOxPY+izIPJDfFDb7eDjev0Us8MO1iFRN8hA==}
     dev: true
 
+  /@iarna/toml/2.2.5:
+    resolution: {integrity: sha512-trnsAYxU3xnS1gPHPyU961coFyLkh4gAD/0zQ5mymY4yOZ+CYvsPqUbOFSw0aDM4y0tV7tiFxL/1XfXPNC6IPg==}
+    dev: true
+
   /@iconify/svelte/2.1.2:
     resolution: {integrity: sha512-NvWPg/lKNDlzyB698vLv8hYT5eRDxSIk0QnMtB7UMOZ7/SbmInyBqsb8t3SXoCYVsNG3poznW+pwYrJZ7kY+mQ==}
     dependencies:
@@ -130,9 +134,11 @@ packages:
       picomatch: 2.3.1
     dev: true
 
-  /@sveltejs/adapter-static/1.0.0-next.28:
-    resolution: {integrity: sha512-c4xLyeSwnbGQxe4f1SLpHTbxZDm3TEr43scR3tOlVgQN+mnAL9aDdl3nTtdzWmrUDmDEmY4GriAwLyFLZuINLw==}
+  /@sveltejs/adapter-netlify/1.0.0-next.46:
+    resolution: {integrity: sha512-eXtnNm3k7SfPI5fDEheOWevHNLXtsNaXx27p0UQBqqkE5kY4wvJDDTiTLAbG/B7EMjFcXTj09+l0JVV4m++rcA==}
     dependencies:
+      '@iarna/toml': 2.2.5
+      esbuild: 0.14.23
       tiny-glob: 0.2.9
     dev: true
 

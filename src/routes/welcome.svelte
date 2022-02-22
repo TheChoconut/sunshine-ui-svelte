@@ -18,12 +18,11 @@
     let tryConnect = () => {
         formState = 2;
         TestConnection(false, {host, port, endpoints}).then((result) => {
-            console.log('TestConnection: result:',result);
             if (!result) {
                 formState = 1;
                 error = "Cannot reach the server. Is your data correct?";
             } else {
-                console.log("Testing authenticated connection");
+                console.debug("Testing authenticated connection");
                 APIConfiguration.set({ host, port, endpoints, token: '' });
                 APIAuthenticate(password).then((authenticated) => {
                     if (!authenticated) {

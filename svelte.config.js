@@ -1,5 +1,5 @@
 import preprocess from 'svelte-preprocess'
-import adapter from '@sveltejs/adapter-static'
+import adapter from '@sveltejs/adapter-netlify'
 import WindiCSS from 'vite-plugin-windicss'
 
 /** @type {import('@sveltejs/kit').Config} */
@@ -7,7 +7,7 @@ export default {
   preprocess: preprocess(),
 
   kit: {
-    adapter: adapter({ fallback: 'index.html' }),
+    adapter: adapter(),
     vite: {
       plugins: [ WindiCSS() ],
     },

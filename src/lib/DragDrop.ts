@@ -1,26 +1,6 @@
 import { spring } from 'svelte/motion'
-import { crossfade } from 'svelte/transition'
-import { quintOut, elasticOut } from 'svelte/easing'
 
-const [send, receive] = crossfade({
-  duration: d => 600,
-  easing: elasticOut,
-  fallback(node, params) {
-    const style = getComputedStyle(node)
-    const transform = style.transform === 'none' ? '' : style.transform
-
-    return {
-      duration: 600,
-      easing: quintOut,
-      css: t => `
-        transform: ${transform} scale(${t});
-        opacity: ${t}
-      `
-    }
-  }
-})
-
-function draggable(node: HTMLElement, params) {
+function draggable(node: HTMLElement, params: { initialLoc: number[]; }): SvelteActionReturnType {
   let lastX
   let lastY
   let startRect: DOMRect;

@@ -9,7 +9,6 @@ export type WindowProps = {
 };
 export type SunshineApplication = { 
     id: string;
-    coverImage: string;
     name: string;
     output: string;
     "prep-cmd": { do: string; undo: string; }[];
@@ -17,7 +16,7 @@ export type SunshineApplication = {
     cmd: string;
     cwd: string;
 }
-export const EmptySunshineApp: SunshineApplication = { id: "-1", coverImage: "", name: "Untitled", output: "", "prep-cmd": [], detached: [], cmd: "", cwd: "" }
+export const EmptySunshineApp: SunshineApplication = { id: "-1", name: "Untitled", output: "", "prep-cmd": [], detached: [], cmd: "", cwd: "" }
 export type SunshineConfiguration = {
     sunshine_name: string;
     amd_quality: string;
@@ -57,9 +56,13 @@ export type SunshineConfiguration = {
     status: string;
     upnp: boolean;
 }
+// @ts-expect-error base64 copied, fix by finding a lib.
+// eslint-disable-next-line
+const Base64={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",encode:function(e){var t="";var n,r,i,s,o,u,a;var f=0;e=Base64._utf8_encode(e);while(f<e.length){n=e.charCodeAt(f++);r=e.charCodeAt(f++);i=e.charCodeAt(f++);s=n>>2;o=(n&3)<<4|r>>4;u=(r&15)<<2|i>>6;a=i&63;if(isNaN(r)){u=a=64}else if(isNaN(i)){a=64}t=t+this._keyStr.charAt(s)+this._keyStr.charAt(o)+this._keyStr.charAt(u)+this._keyStr.charAt(a)}return t},decode:function(e){var t="";var n,r,i;var s,o,u,a;var f=0;e=e.replace(/[^A-Za-z0-9\+\/\=]/g,"");while(f<e.length){s=this._keyStr.indexOf(e.charAt(f++));o=this._keyStr.indexOf(e.charAt(f++));u=this._keyStr.indexOf(e.charAt(f++));a=this._keyStr.indexOf(e.charAt(f++));n=s<<2|o>>4;r=(o&15)<<4|u>>2;i=(u&3)<<6|a;t=t+String.fromCharCode(n);if(u!=64){t=t+String.fromCharCode(r)}if(a!=64){t=t+String.fromCharCode(i)}}t=Base64._utf8_decode(t);return t},_utf8_encode:function(e){e=e.replace(/\r\n/g,"\n");var t="";for(var n=0;n<e.length;n++){var r=e.charCodeAt(n);if(r<128){t+=String.fromCharCode(r)}else if(r>127&&r<2048){t+=String.fromCharCode(r>>6|192);t+=String.fromCharCode(r&63|128)}else{t+=String.fromCharCode(r>>12|224);t+=String.fromCharCode(r>>6&63|128);t+=String.fromCharCode(r&63|128)}}return t},_utf8_decode:function(e){var t="";var n=0;var r=c1=c2=0;while(n<e.length){r=e.charCodeAt(n);if(r<128){t+=String.fromCharCode(r);n++}else if(r>191&&r<224){c2=e.charCodeAt(n+1);t+=String.fromCharCode((r&31)<<6|c2&63);n+=2}else{c2=e.charCodeAt(n+1);c3=e.charCodeAt(n+2);t+=String.fromCharCode((r&15)<<12|(c2&63)<<6|c3&63);n+=3}}return t}}
 
 export type ApplicationsGetAPIResult = GenericResponse & { content: string }
 export type ConfigGetAPIResult = GenericResponse & SunshineConfiguration
+export type APIVersionResult = GenericResponse & { api_version: string; version: string; }
 export type APIResponseTypes = {
     'get_apps': ApplicationsGetAPIResult,
     'save_app': GenericResponse,
@@ -67,88 +70,96 @@ export type APIResponseTypes = {
     'save_config': GenericResponse,
     'get_config': ConfigGetAPIResult,
     'save_pin': GenericResponse,
+    'api_version': APIVersionResult,
+    'close_app': GenericResponse,
+    'unpair_all': GenericResponse
 }
-type GenericResponse = { type: string; result: boolean; }
+type GenericResponse = { type: string; result: boolean; authenticated: string; }
 type APIProps = {
     host: string;
     port: string;
-    endpoint: string;
-    token: string;
+    endpoints: {
+        api: string;
+        events: string;
+        auth: string;
+        appAsset: string;
+    }
+    token?: string;
 }
 
-let WebSocket: WebSocket | null = null;
-export const APIConfiguration = localStore<APIProps>('apiConfig', { host: 'localhost', port: '47990', endpoint: 'v1', token: ''});
+let ServerAPIEvents: EventSource | null = null;
+export const APIConfiguration = localStore<APIProps>('apiConfig', { host: 'localhost', port: '47990', endpoints: { api: 'api/v1', appAsset: 'appasset', auth: 'api/authenticate', events: 'api/events' }, token: ''});
 
-export async function APIRequest<T extends keyof APIResponseTypes>(type: T, data: any = {}): Promise<APIResponseTypes[T]> {
-    if (!WebSocket) throw new Error("Default WebSocket is not connected. Did you run StartWebSocketServer()?");
-    return new Promise((resolve) => {
-        WebSocket.send(JSON.stringify({type, data}));
-        const id = setTimeout(() => resolve(null), 15000);
-        WebSocket.onmessage = (ev) => {
-            clearTimeout(id);
-            resolve(JSON.parse(ev.data));
-        };
-    });
+export function getEndpointUrl(endpointType: 'auth' | 'events' | 'api' | 'appAsset'): string {
+    const config = get(APIConfiguration);
+    return `https://${config.host}:${config.port}/${config.endpoints[endpointType]}`;
 }
 
-export async function WaitForSocket(): Promise<void> {
-    return new Promise<void>((resolve) => {
-        const retry = async () => { await WaitForSocket(); resolve(); }
-        if (!WebSocket) {
-            setTimeout(retry,200);
-            return;
-        }
-        if (WebSocket.readyState != WebSocket.OPEN) {
-            setTimeout(retry,200);
-            return;
-        }
-        resolve();
-    });
+export async function APIRequest<T extends keyof APIResponseTypes>(type: T, data: any = null): Promise<APIResponseTypes[T] | null> {
+    const config = get(APIConfiguration);
+    const headers = config.token ? { 'Authorization': 'Bearer ' + config.token } : {};
+    return fetch(`https://${config.host}:${config.port}/${config.endpoints.api}/${type}`, { body: data ? JSON.stringify(data) : null, method: data ? 'POST' : 'GET', mode: 'cors', headers })
+        .then((response) => response.json())
+        .catch((err) => {
+            console.log(err);
+            return null;
+        });
+}
+
+export async function APIAuthenticate(password: string): Promise<boolean> {
+    const config = get(APIConfiguration);
+    
+    const headers = { 'Authorization': 'Basic ' + Base64.encode("sunshine" + ":" + password) };
+    return fetch(`https://${config.host}:${config.port}/${config.endpoints.auth}`, { headers, method: 'POST' })
+        .then(async (response) => {
+            if (response.ok) {
+                const text = await response.text();
+                APIConfiguration.update((a) => ({...a, token: text}));
+                return true;
+            } else return false;
+        });
 }
 
 export function invalidateAPIConfiguration(): void {
-    if (WebSocket && WebSocket.readyState == WebSocket.OPEN) {
-        WebSocket.close();
+    console.log('invalidateAPIConfiguration');
+    if (ServerAPIEvents) {
+        console.log('invalidateAPIConfiguration: closing ServerAPIEvents');
+        ServerAPIEvents.close();
     }
-    WebSocket = null;
+    ServerAPIEvents = null;
     APIConfiguration.update((a) => ({...a, token: ''}));
 }
 
-export async function StartWebSocketServer(tryAgain: boolean, suppliedConfig?: APIProps): Promise<boolean> {
-    if (!('WebSocket' in window)) return false;
-    if (WebSocket) return WebSocket.readyState === WebSocket.OPEN;
-
-    const config = suppliedConfig || get(APIConfiguration);
-
-    return new Promise((resolve) => {
-        try {
-            console.log("Connecting",config);
-            WebSocket = new window.WebSocket(`wss://${config.host}:${config.port}/${config.endpoint}?token=${config.token}`);
-            WebSocket.onerror = () => {
-                invalidateAPIConfiguration();
-                resolve(false);
-            };
-            WebSocket.addEventListener('message', (ev) => {
-                const request = JSON.parse(ev.data);
-                if (Object.prototype.hasOwnProperty.call(request, 'type') && request.type === 'request_pin') {
-                    pinDialog.set({ open: true, pin: '' });
-                }
-            })
-            WebSocket.onopen=function(evt) {
-                console.log("Socket connected",evt);
-                resolve(true);
-            }  
-            WebSocket.onclose=function() {
-                invalidateAPIConfiguration();
-                resolve(false);
-                if (tryAgain) {
-                    setTimeout(() => StartWebSocketServer(tryAgain), 1500);
-                }
-            }  
-        } catch (e) {
-            console.log('Error while creating WebSocket',e);
-            resolve(false);
+function handleServerEvent(res: MessageEvent<string>) {
+    try {
+        const data = JSON.parse(res.data);
+        console.log(data);
+        if (Object.prototype.hasOwnProperty.call(data, 'type')) {
+            if (data.type === 'request_pin') pinDialog.set({ open: true, pin: '' });
         }
-    });
+    } catch (e) { console.error('Server event fail: ', e); }
+}
 
+export async function TestConnection(checkForAuth: boolean, suppliedConfig?: APIProps): Promise<boolean> {
+    const config = suppliedConfig || get(APIConfiguration);
+    if (config.token === "") return;
+
+    const result = await APIRequest('api_version')
+        .then((result) => Number(result.api_version) >= 1 && (checkForAuth ? result.authenticated === "true" : true))
+        .catch((err) => {
+            console.log(err);
+            return false;
+        });
+    if (result) {
+        if (ServerAPIEvents === null) {
+            ServerAPIEvents = new EventSource(`https://${config.host}:${config.port}/${config.endpoints.events}`);
+            ServerAPIEvents.onmessage = (data) => handleServerEvent(data);
+            ServerAPIEvents.onerror = async () => {
+                if (await TestConnection(false) === false) {
+                    invalidateAPIConfiguration();
+                }
+            }
+        }
+    }
+    return result;
 }

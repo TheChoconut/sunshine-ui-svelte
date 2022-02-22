@@ -56,16 +56,16 @@ import SettingPart from '$lib/components/SettingPart.svelte';
 </div>
 
 {#if encoder === 'software'}
-    <SettingPart longInput>
+    <SettingPart inputType='long'>
         <span slot="title">SW presets</span>
         <input bind:value={$config.sw_preset} slot="input" type="text" placeholder={"superfast"} class="h-10 border-gray-300 border-1 pl-4 rounded-lg w-full" />
     </SettingPart>
-    <SettingPart longInput>
+    <SettingPart inputType='long'>
         <span slot="title">SW tune</span>
         <input bind:value={$config.sw_tune} slot="input" type="text" placeholder={"zerolatency"} class="h-10 border-gray-300 border-1 pl-4 rounded-lg w-full" />
     </SettingPart>
 {:else if encoder === 'amd'}
-    <SettingPart longInput>
+    <SettingPart inputType='long'>
         <span slot="title">AMD AMF quality</span>
         <select bind:value={$config.amd_quality} slot="input" class="h-10 border-gray-300 border-1 pl-4 rounded-lg w-full">
             <option value="default">Default</option>
@@ -73,7 +73,7 @@ import SettingPart from '$lib/components/SettingPart.svelte';
             <option value="balanced">Balanced</option>
         </select>
     </SettingPart>
-    <SettingPart longInput>
+    <SettingPart inputType='long'>
         <span slot="title">AMD AMF rate control</span>
         <select bind:value={$config.amd_rc} slot="input" class="h-10 border-gray-300 border-1 pl-4 rounded-lg w-full">
             <option value="auto">Let FFMpeg decide</option>
@@ -83,7 +83,7 @@ import SettingPart from '$lib/components/SettingPart.svelte';
             <option value="cbr">Constant Bitrate</option>
         </select>
     </SettingPart>
-    <SettingPart longInput>
+    <SettingPart inputType='long'>
         <span slot="title">AMD Coder</span>
         <select bind:value={$config.amd_coder} slot="input" class="h-10 border-gray-300 border-1 pl-4 rounded-lg w-full">
             <option value="auto">Auto</option>
@@ -92,7 +92,7 @@ import SettingPart from '$lib/components/SettingPart.svelte';
         </select>
     </SettingPart>
 {:else if encoder === 'nvidia'}
-    <SettingPart longInput>
+    <SettingPart inputType='long'>
         <span slot="title">NVENC preset</span>
         <select bind:value={$config.nv_preset} slot="input" class="h-10 border-gray-300 border-1 pl-4 rounded-lg w-full">
             <option value="default">Default</option>
@@ -109,7 +109,7 @@ import SettingPart from '$lib/components/SettingPart.svelte';
             <option value="losslesshp">losslesshp</option>
         </select>
     </SettingPart>
-    <SettingPart longInput>
+    <SettingPart inputType='long'>
         <span slot="title">NVENC rate control</span>
         <select bind:value={$config.nv_rc} slot="input" class="h-10 border-gray-300 border-1 pl-4 rounded-lg w-full">
             <option value="auto">Let FFMpeg decide</option>
@@ -121,7 +121,7 @@ import SettingPart from '$lib/components/SettingPart.svelte';
             <option value="vbr_hq">High quality variable Bitrate</option>
         </select>
     </SettingPart>
-    <SettingPart longInput>
+    <SettingPart inputType='long'>
         <span slot="title">NVENC Coder</span>
         <select bind:value={$config.nv_coder} slot="input" class="h-10 border-gray-300 border-1 pl-4 rounded-lg w-full">
             <option value="auto">Auto</option>

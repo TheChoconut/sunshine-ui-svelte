@@ -4,19 +4,16 @@
 	import InputSettingsTab from '$lib/settings_tabs/InputSettingsTab.svelte';
 	import AVSettingsTab from '$lib/settings_tabs/AVSettingsTab.svelte';
 	import GeneralSettingsTab from '$lib/settings_tabs/GeneralSettingsTab.svelte';
-  import { APIRequest, SunshineConfiguration, WaitForSocket } from '$lib/api';
+  import EncoderSettingsTab from '$lib/settings_tabs/EncoderSettingsTab.svelte';
+  import { APIRequest, SunshineConfiguration } from '$lib/api';
   import { Writable, writable } from 'svelte/store';
   import { onMount, setContext } from 'svelte';
-import EncoderSettingsTab from '$lib/settings_tabs/EncoderSettingsTab.svelte';
 
-  let config: Writable<SunshineConfiguration> = writable({
-    sunshine_name: '',
-  });
+  let config: Writable<SunshineConfiguration | null> = writable(null);
   setContext('SunshineSettings', config);
 
   let requestConfig = async () => {
-    await WaitForSocket();
-    const newConfig = await APIRequest("get_config", {});
+    const newConfig = await APIRequest("get_config");
     delete newConfig.status;
     delete newConfig.result;
     delete newConfig.platform;
@@ -25,7 +22,6 @@ import EncoderSettingsTab from '$lib/settings_tabs/EncoderSettingsTab.svelte';
   }
 
   let saveChanges = async () => {
-    await WaitForSocket();
     await APIRequest("save_config", {config: JSON.stringify($config)});
     requestConfig();
   }
@@ -52,11 +48,13 @@ import EncoderSettingsTab from '$lib/settings_tabs/EncoderSettingsTab.svelte';
     {/each}
   </tabbar>
   <div class="flex-1 overflow-y-auto pr-2">
-    <svelte:component this={tabs[currentTab].component} />
+    {#if $config}
+      <svelte:component this={tabs[currentTab].component} />
+    {/if}
   </div>
   <unsavedChanges class="block w-full container flex h-24 items-center gap-4">
-    <button on:click={saveChanges} class="bg-blue-300 text-blue-900 font-bold rounded w-24 h-10 hover:shadow-lg transition-shadow">Save</button>
-    <button on:click={undoChanges} class="bg-gray-300 text-black font-bold rounded w-24 h-10 hover:shadow-lg transition-shadow">Cancel</button>
+    <button on:click={saveChanges} class="bg-blue-300 text-blue-900 font-bold rounded w-24 h-10 hover:(ring-2 ring-blue-500 ring-offset-gray-100 ring-offset-2) transition-shadow">Save</button>
+    <button on:click={undoChanges} class="bg-gray-300 text-black font-bold rounded w-24 h-10 hover:(ring-2 ring-gray-500 ring-offset-gray-100 ring-offset-2) transition-shadow">Cancel</button>
   </unsavedChanges>
 </content>
 

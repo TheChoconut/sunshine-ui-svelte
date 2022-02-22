@@ -1,5 +1,5 @@
 <script lang="ts">
-import { APIRequest, WaitForSocket } from '$lib/api';
+import { APIRequest } from '$lib/api';
 
 import { pinDialog } from "$lib/store";
 
@@ -26,13 +26,15 @@ const handleKeyPress = (ev, index) => {
         inputs[index+1].focus();
     }
 }
-const handlePinSubmit = () => {
-    WaitForSocket().then(async () => {
-        await APIRequest("save_pin", {pin: Number(digits.join(''))});
-        pinDialog.set({ open: false, pin: '' });
-    })
+const handlePinSubmit = async () => {
+    await APIRequest("save_pin", {pin: Number(digits.join(''))});
+    digits = ["", "", "", ""];
+    pinDialog.set({ open: false, pin: '' });
 }
-const handleCancel = () => pinDialog.set({ open: false, pin: '' });
+const handleCancel = () => {
+    digits = ["", "", "", ""];
+    pinDialog.set({ open: false, pin: '' })
+};
 
 </script>
 

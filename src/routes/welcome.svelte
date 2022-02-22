@@ -4,23 +4,33 @@
     import FaArrowRight from 'svelte-icons/fa/FaArrowRight.svelte'
     import FaKey from 'svelte-icons/fa/FaKey.svelte'
     import FaExclamationTriangle from 'svelte-icons/fa/FaExclamationTriangle.svelte'
-    import { APIConfiguration, StartWebSocketServer } from '$lib/api';
+    import { APIAuthenticate, APIConfiguration, TestConnection } from '$lib/api';
+    import LoadingSpinner from '$lib/LoadingSpinner.svelte';
 
     let visible = false;
     onMount(() => {
-        visible = true
+        visible = true;
+        APIConfiguration.update((a) => ({...a, token: ''}));
     });
 
-    let formState = 0, error = "", host = $APIConfiguration.host, port = $APIConfiguration.port, endpoint = $APIConfiguration.endpoint, token = "";
+    let formState = 0, error = "", host = $APIConfiguration.host, port = $APIConfiguration.port, endpoints = $APIConfiguration.endpoints, password = "";
 
     let tryConnect = () => {
         formState = 2;
-        StartWebSocketServer(false, {host, port, token, endpoint}).then((result) => {
+        TestConnection(false, {host, port, endpoints}).then((result) => {
+            console.log('TestConnection: result:',result);
             if (!result) {
                 formState = 1;
-                error = "Failed to connect. Are your credentials correct?";
+                error = "Cannot reach the server. Is your data correct?";
             } else {
-                APIConfiguration.set({ host, port, token, endpoint })
+                console.log("Testing authenticated connection");
+                APIConfiguration.set({ host, port, endpoints, token: '' });
+                APIAuthenticate(password).then((authenticated) => {
+                    if (!authenticated) {
+                        formState = 1;
+                        error = "Password is invalid. Try again";
+                    }
+                })
             }
         })
     }
@@ -66,18 +76,18 @@
                 <input type="number" id="port" min={0} max={65529} bind:value={port} class="rounded-lg border border-gray-400 h-10 pl-2 mb-2" />
             </div>
         </div>
-        <label for="token" class="text-gray-500 text-xl flex items-center gap-1 mb-2">
+        <label for="password" class="text-gray-500 text-xl flex items-center gap-1 mb-2">
             <div class="w-4 h-4"><FaKey /></div>
-            <span>Access token</span>
+            <span>Password</span>
         </label>
-        <input type="password" id="token" bind:value={token} class="rounded-lg border border-gray-400 w-full h-10 pl-2 mb-2" />
+        <input type="password" id="password" bind:value={password} class="rounded-lg border border-gray-400 w-full h-10 pl-2 mb-2" />
         <button on:click={() => tryConnect()} class="rounded-lg bg-blue-200 text-blue-900 ring-blue-100 hover:ring-3 px-6 py-4 font-medium flex space-x-2 mt-4 items-center justify-center ring-offset-2">
             <span>Connect</span>
             <div class="w-4 h-4"><FaCheck /></div>
         </button>
     {:else if formState == 2}
         <div class="flex flex-col justify-center items-center gap-2">
-            <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+            <LoadingSpinner />
             <span class="text-xl">Connecting...</span>
         </div>
     {/if}
@@ -92,40 +102,4 @@
         top: 50%;
         transform: translate(-50%, -50%);
     }
-    .lds-ring {
-        display: inline-block;
-        position: relative;
-        width: 80px;
-        height: 80px;
-    }
-    .lds-ring div {
-        box-sizing: border-box;
-        display: block;
-        position: absolute;
-        width: 64px;
-        height: 64px;
-        margin: 8px;
-        border: 8px solid #2a5f83;
-        border-radius: 50%;
-        animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
-        border-color: #2a5f83 transparent transparent transparent;
-    }
-    .lds-ring div:nth-child(1) {
-        animation-delay: -0.45s;
-    }
-    .lds-ring div:nth-child(2) {
-        animation-delay: -0.3s;
-    }
-    .lds-ring div:nth-child(3) {
-        animation-delay: -0.15s;
-    }
-    @keyframes lds-ring {
-        0% {
-            transform: rotate(0deg);
-        }
-        100% {
-            transform: rotate(360deg);
-        }
-    }
-
 </style>

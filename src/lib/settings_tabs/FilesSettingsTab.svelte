@@ -7,22 +7,22 @@
 
     const config = getContext('SunshineSettings') as Writable<SunshineConfiguration>;
 </script>
-<SettingPart longInput={true}>
+<SettingPart inputType='long'>
     <span slot="title">Private key</span>
     <span slot="help">The private key must be 2048 bits.</span>
     <input bind:value={$config.pkey} slot="input" type="text" placeholder="/path/to/key.pem" class="h-10 border-gray-300 border-1 pl-4 rounded-lg w-full" />
 </SettingPart>
-<SettingPart longInput={true}>
+<SettingPart inputType='long'>
     <span slot="title">Certificate file</span>
     <span slot="help">The certificate must be signed with a 2048 bit key!</span>
     <input bind:value={$config.cert} slot="input" type="text" placeholder="/path/to/sunshine-state.json" class="h-10 border-gray-300 border-1 pl-4 rounded-lg w-full" />
 </SettingPart>
-<SettingPart longInput={true}>
+<SettingPart inputType='long'>
     <span slot="title">Sunshine State File</span>
     <span slot="help">The file where current state of Sunshine is stored.</span>
     <input bind:value={$config.file_state} slot="input" type="text" placeholder="/path/to/sunshine-state.json" class="h-10 border-gray-300 border-1 pl-4 rounded-lg w-full" />
 </SettingPart>
-<SettingPart longInput={true}>
+<SettingPart inputType='long'>
     <span slot="title">Applications file</span>
     <span slot="help"><strong>apps.json</strong> contains all the necessary configuration for running apps in Sunshine.</span>
     <input bind:value={$config.file_apps} slot="input" type="text" placeholder="/path/to/apps.json" class="h-10 border-gray-300 border-1 pl-4 rounded-lg w-full" />

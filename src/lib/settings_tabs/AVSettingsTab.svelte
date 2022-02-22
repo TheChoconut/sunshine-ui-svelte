@@ -7,12 +7,12 @@
 
     const config = getContext('SunshineSettings') as Writable<SunshineConfiguration>;
 </script>
-<SettingPart longInput={true}>
+<SettingPart inputType='long'>
     <span slot="title">Audio Sink</span>
     <span slot="help">The name of the audio sink used for Audio Loopback.</span>
     <input bind:value={$config.audio_sink} slot="input" type="text" placeholder={"{0.0.0.00000000}.{FD47D9CC-4218-4135-9CE2-0C195C87405B}"} class="h-10 border-gray-300 border-1 pl-4 rounded-lg w-full" />
 </SettingPart>
-<SettingPart longInput={true}>
+<SettingPart inputType='long'>
     <span slot="title">Virtual Sink</span>
     <span slot="help">Virtual audio device name (like Steam Streaming Speakers) <br/> Allows Sunshine to stream audio with muted speakers.</span>
     <input bind:value={$config.virtual_sink} slot="input" type="text" placeholder={"{0.0.0.00000000}.{FD47D9CC-4218-4135-9CE2-0C195C87405B}"} class="h-10 border-gray-300 border-1 pl-4 rounded-lg w-full" />

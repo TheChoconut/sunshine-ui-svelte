@@ -1,0 +1,44 @@
+<script lang="ts">
+
+    export let size = '80px';
+</script>
+
+<div class="lds-ring" style="--size: {size};"><div></div><div></div><div></div><div></div></div>
+
+<style>
+    .lds-ring {
+        display: inline-block;
+        position: relative;
+        width: var(--size);
+        height: var(--size);
+    }
+    .lds-ring div {
+        box-sizing: border-box;
+        display: block;
+        position: absolute;
+        width: var(--size);
+        height: var(--size);
+        margin: calc(var(--size) / 8);
+        border: calc(var(--size) / 8) solid #2a5f83;
+        border-radius: 50%;
+        animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+        border-color: #2a5f83 transparent transparent transparent;
+    }
+    .lds-ring div:nth-child(1) {
+        animation-delay: -0.45s;
+    }
+    .lds-ring div:nth-child(2) {
+        animation-delay: -0.3s;
+    }
+    .lds-ring div:nth-child(3) {
+        animation-delay: -0.15s;
+    }
+    @keyframes lds-ring {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+</style>

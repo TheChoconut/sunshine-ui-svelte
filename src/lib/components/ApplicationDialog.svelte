@@ -1,4 +1,4 @@
-<script context="module">
+<script context="module" lang="ts">
     import hljs from "highlight.js/lib/core";
     import bash from "highlight.js/lib/languages/bash";
     import 'highlight.js/styles/atom-one-dark.css'
@@ -6,7 +6,7 @@
     hljs.registerLanguage("bash", bash);
 
     // `highlight` takes the input code and returns the highlighted HTML markup
-    const highlight = (code, syntax) =>
+    const highlight = (code: string, syntax: any) =>
         hljs.highlight(code, {
             language: syntax,
         }).value;
@@ -56,7 +56,7 @@
 {#if windowProps}
   <div use:draggable={{initialLoc: [windowProps.x,windowProps.y]}} class="absolute overflow-hidden z-20 w-[800px] h-[600px] rounded-xl shadow-lg bg-white">
     <div class="bg-blue-200 h-4 w-full mb-4"></div>
-    <div class="flex h-10 items-center px-8 mb-4">
+    <div class="flex h-10 items-center px-8">
       {#if isEditTitleMode}
         <input
           bind:this={disInput}
@@ -87,10 +87,10 @@
       </div>
     </div>
     <div class="pl-8 pr-4 w-full h-[500px] overflow-y-scroll">
-      <SettingPart>
+      <SettingPart inputType={'full'}>
         <h4 slot="title" class="text-md font-medium">Main command</h4>
-        <p slot="help">The main application started.<br>If empty, a process that sleeps indefinitely is used.</p>
-        <input slot="input" bind:value={app.cmd} type="text" class="w-60 rounded-lg p-1 border-gray-200 border" />
+        <p slot="help" class="italic text-gray-500 mb-1">The main application started.<br>If empty, a process that sleeps indefinitely is used.</p>
+        <input slot="input" bind:value={app.cmd} class="w-full rounded-lg p-1 border-gray-200 border" />
       </SettingPart>
       <SettingPart>
         <h4 slot="title" class="text-md font-medium">Output file</h4>

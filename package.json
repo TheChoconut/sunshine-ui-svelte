@@ -9,12 +9,15 @@
     "check:watch": "svelte-check --tsconfig ./tsconfig.json --watch",
     "format": "prettier --write ./src/**/*.{svelte,ts,js} ./*.{ts,js}",
     "lint": "eslint ./src/**/*.{svelte,ts,js} --ignore-path .gitignore .",
-    "lint:fix": "eslint --fix ./src/**/*.{svelte,ts,js} --ignore-path .gitignore ."
+    "lint:fix": "eslint --fix ./src/**/*.{svelte,ts,js} --ignore-path .gitignore .",
+    "tauri": "tauri",
+    "tauri:plugin": "tauri init --name sse --api"
   },
   "devDependencies": {
     "@novacbn/svelte-codejar": "^0.1.1",
-    "@sveltejs/adapter-netlify": "next",
+    "@sveltejs/adapter-static": "next",
     "@sveltejs/kit": "next",
+    "@tauri-apps/cli": "^1.0.0-rc.5",
     "@typescript-eslint/eslint-plugin": "^5.12.1",
     "@typescript-eslint/parser": "^5.12.1",
     "eslint": "^8.9.0",
@@ -34,6 +37,7 @@
   "type": "module",
   "dependencies": {
     "@iconify/svelte": "^2.1.2",
+    "@tauri-apps/api": "^1.0.0-rc.1",
     "nanoid": "^3.3.1"
   }
 }

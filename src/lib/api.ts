@@ -1,6 +1,7 @@
 import { localStore } from '$lib/localStore'
 import { invoke } from '@tauri-apps/api';
-import { WebviewWindow } from '@tauri-apps/api/window';
+import { WebviewWindow, primaryMonitor } from '@tauri-apps/api/window';
+import { listen } from '@tauri-apps/api/event'
 import { get } from 'svelte/store';
 
 export type WindowProps = {
@@ -88,7 +89,7 @@ type APIProps = {
     token?: string;
 }
 
-let ServerAPIEvents = { active: false };
+const ServerAPIEvents = { active: false, unlistenFn: null };
 export const APIConfiguration = localStore<APIProps>('apiConfig', { host: 'localhost', port: '47990', endpoints: { api: 'api/v1', appAsset: 'appasset', auth: 'api/authenticate', events: 'api/events' }, token: ''});
 
 export function getEndpointUrl(endpointType: 'auth' | 'events' | 'api' | 'appAsset'): string {
@@ -114,10 +115,14 @@ export async function APIRequest<T extends keyof APIResponseTypes>(type: T, data
 export async function APIAuthenticate(password: string): Promise<boolean> {
     return invoke('fetch', { url: getEndpointUrl('auth'), body: "", method: 'POST', authorization: "Basic " + Base64.encode("sunshine" + ":" + password) })
         .then((res: string) => JSON.parse(res))
-        .then((res) => {
+        .then(async (res) => {
             if (res.code === 200) {
                 const token = res.result;
                 APIConfiguration.update((a) => ({...a, token}));
+                const config = get(APIConfiguration);
+                invoke('start_sse', { urlStr: `https://${config.host}:${config.port}/${config.endpoints.events}`, authorization: config.token });
+                ServerAPIEvents.active = true;
+                ServerAPIEvents.unlistenFn = await listen('sse_event', (event) => handleServerEvent(event.payload as string));
                 return true;
             }
             else return false;
@@ -130,11 +135,18 @@ export async function APIAuthenticate(password: string): Promise<boolean> {
 
 export function invalidateAPIConfiguration(): void {
     console.log('API configuration will be invalidated');
-    if (ServerAPIEvents) {
+    if (ServerAPIEvents.active === true) {
         console.debug('invalidateAPIConfiguration: closing ServerAPIEvents');
+        invoke('stop_sse')
+            .then((res) => console.log('SSE closing success',res))
+            .catch((res) => console.log('SSE closing failed',res));
+        if (ServerAPIEvents.unlistenFn !== null)
+            ServerAPIEvents.unlistenFn();
+        else
+            console.warn("ServerAPIEvents active, but no event listening function isn't registered.")
+        ServerAPIEvents.unlistenFn = null;
         ServerAPIEvents.active = false;
     }
-    ServerAPIEvents = null;
     APIConfiguration.update((a) => ({...a, token: ''}));
 }
 
@@ -146,7 +158,9 @@ async function handleServerEvent(res: string) {
             if (data.type === 'request_pin') {
                 
                 let webview = WebviewWindow.getByLabel('pin_request'); 
+                
                 if (webview === null) {
+                    const monitor = await primaryMonitor();
                     webview = new WebviewWindow('pin_request', {
                         url: '/pin',
                         alwaysOnTop: true,
@@ -157,8 +171,8 @@ async function handleServerEvent(res: string) {
                         width: 400,
                         height: 200,
                         focus: true,
-                        x: 1000,
-                        y: 800,
+                        x: monitor.size.width - 420,
+                        y: monitor.size.height - (200 + 48 + 20),
                         visible: true,
                     });
                 } else {
@@ -184,17 +198,5 @@ export async function TestConnection(checkForAuth: boolean, suppliedConfig?: API
             console.log('Connection test failed',err);
             return false;
         });
-    if (result) {
-        if (!ServerAPIEvents.active) {
-            /*
-            ServerAPIEvents = new EventSource(`http://${config.host}:${config.port}/${config.endpoints.events}`);
-            ServerAPIEvents.onmessage = (data) => handleServerEvent(data.data);
-            ServerAPIEvents.onerror = async () => {
-                if (await TestConnection(false) === false) {
-                    invalidateAPIConfiguration();
-                }
-            }*/
-        }
-    }
     return result;
 }

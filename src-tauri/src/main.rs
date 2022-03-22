@@ -2,9 +2,16 @@
   all(not(debug_assertions), target_os = "windows"),
   windows_subsystem = "windows"
 )]
-use std::fs::File;
+use std::{fs::File};
 use std::io::Read;
+use reqwest_eventsource::EventSource;
 use serde::{Deserialize, Serialize};
+use futures::{StreamExt};
+use tauri::Manager;
+use tokio::task;
+use tokio::sync::mpsc;
+use tokio::sync::mpsc::{UnboundedSender};
+
 
 #[derive(Debug, Serialize, Deserialize)]
 struct APIResponse {
@@ -12,7 +19,7 @@ struct APIResponse {
     result: String
 }
 
-struct AppState(reqwest::Client, Option<reqwest::Certificate>);
+struct AppState(reqwest::Client, Option<reqwest::Certificate>, std::sync::Mutex<Option<UnboundedSender<bool>>>);
 
 #[tauri::command]
 async fn fetch(url: String, body: String, method: String, authorization: String, state: tauri::State<'_, AppState>) -> Result<String, String> {
@@ -45,40 +52,95 @@ async fn fetch(url: String, body: String, method: String, authorization: String,
 }
 
 #[tauri::command]
-async fn startSSE(urlStr: String, state: tauri::State<'_, AppState>) -> Result<String, String> {
-  let cert: &reqwest::Certificate = &state.1.unwrap();
+async fn start_sse(url_str: String, authorization: String, state: tauri::State<'_, AppState>, window: tauri::Window) -> Result<String, String> {
 
-  let url = reqwest::Url::parse(&urlStr).unwrap();
-  let joinHandle = std::thread::spawn(move || {
-    let blocking = reqwest::blocking::Client::builder()
-      .add_root_certificate(cert.to_owned()).build().unwrap();
-    let client = eventsource::reqwest::Client::new_with_client(url, blocking);
+  let cert: reqwest::Certificate = state.1.as_ref().unwrap().clone();
+
+  let url = reqwest::Url::parse(&url_str).unwrap();
+  let (tx, mut rx) = mpsc::unbounded_channel::<bool>();
+
+  *state.2.lock().unwrap() = Some(tx);
+
+  task::spawn(async move {
+    let client = reqwest::Client::builder()
+      .add_root_certificate(cert).build().unwrap();
+    let request = client.request(reqwest::Method::GET, url)
+        .header(reqwest::header::AUTHORIZATION, authorization)
+        .header(reqwest::header::USER_AGENT, "Sunshine RustUI v0.0.1-beta");
+    let mut es = EventSource::new(request).unwrap();
+
+    loop {
+      tokio::select! (
+        event2 = es.next() => {
+          match event2.unwrap() {
+            Ok(reqwest_eventsource::Event::Open) => println!("Connection Open!"),
+            Ok(reqwest_eventsource::Event::Message(message)) => {
+              window.emit_all("sse_event", message.data).unwrap();
+            },
+            Err(err) => {
+              window.emit_all("sse_event", "{\"type\": \"error\"}").unwrap();
+              println!("Error: {}", err);
+              es.close();
+            }
+          }
+        },
+        _ = rx.recv() => {
+          es.close();
+          println!("SSE closed");
+          break;
+        }
+      )
+    }
   });
-  // TODO: save join handle into app state.
+  
   Ok("confirmed".to_string())
 }
 
-fn main() {
+#[tauri::command]
+async fn stop_sse(state: tauri::State< '_,AppState>) -> Result<String, String> {
+  // test
+  match state.2.try_lock() {
+    Ok(mut send) => {
+      match send.as_mut() {
+        Some(send) => {
+          match send.send(true) {
+            Ok(_) => return Ok("Sent stop command".to_string()),
+            Err(_) => return Err("Failed to send SSE close event".to_string())
+          }
+        },
+        None => return Err("SSE is not running.".to_string())
+      }
+    }
+    Err(_err) => return Err("Failed to send SSE close event".to_string())
+  }
+  
+}
 
+fn read_certificate_file() -> Result<reqwest::Certificate, Box<dyn std::error::Error>> {
   let mut buf = Vec::new();
-  let file_result = File::open("../cacert.pem");
-  let client_builder = reqwest::Client::builder();
-  let mut cert: Option<reqwest::Certificate> = None;
-  match file_result {
-    Ok(mut file) => { 
-      file.read_to_end(&mut buf).expect("Failed to read the certificate.");
-      cert = Some(reqwest::Certificate::from_pem(&buf).expect("Invalid certificate format."));
-    },
-    Err(_error) => println!("Error while reading certificate: {}", _error)
+  let mut file = File::open("../cacert.pem")?;
+  file.read_to_end(&mut buf)?;
+  match reqwest::Certificate::from_pem(&buf) {
+    Ok(cert) => return Ok(cert),
+    Err(_err) => return Err(Box::new(_err))
   };
+}
+
+fn main() {
+  let client_builder = reqwest::Client::builder();
+  
+  let cert = read_certificate_file();
   let client = match cert { 
-    Some(cert) => client_builder.add_root_certificate(cert).build().unwrap(),
-    None => client_builder.build().unwrap()
+    Ok(ref cert) => client_builder.add_root_certificate(cert.clone()).build().unwrap(),
+    Err(ref _err) => {
+      println!("Failed to read certificate file!");
+      client_builder.build().unwrap()
+    }
   };
   
   tauri::Builder::default()
-    .manage(AppState(client, cert))
-    .invoke_handler(tauri::generate_handler![fetch, startSSE])
+    .manage(AppState(client, cert.ok(), std::sync::Mutex::new(None)))
+    .invoke_handler(tauri::generate_handler![fetch, start_sse, stop_sse])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }

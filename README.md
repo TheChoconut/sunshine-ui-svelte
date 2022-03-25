@@ -1,68 +1,190 @@
-# SvelteKit (vite) using typescript with Tailwind
+<div id="top"></div>
 
-## Changelog
+<!-- PROJECT SHIELDS -->
+[![Contributors][contributors-shield]][contributors-url]
+[![Forks][forks-shield]][forks-url]
+[![Stargazers][stars-shield]][stars-url]
+[![Issues][issues-shield]][issues-url]
+[![GPLv3 License][license-shield]][license-url]
 
-### Now version 0.0.4
-Looks like this will be the last beta version, hope the stable version will be released soon.
 
-- ```
-  @sveltejs/kit 1.0.0.next-110 
-  @sveltejs/adapter-static 1.0.0.next-12
-  ```
-- `@tailwindcss/jit` already merge to `tailwindcss 2.1`, read https://blog.tailwindcss.com/tailwindcss-2-1 for more detail
-  
-> Still using `postcss-preset-env to postcss-nested`, feel free to replace it back
 
-### version 0.0.3
+<!-- PROJECT LOGO -->
+<br />
+<div align="center">
+  <a href="https://github.com/TheChoconut/sunshine-ui-svelte">
+    <img src="static/sunshine.png" alt="Logo" width="80" height="80">
+  </a>
 
-- **SvelteKit beta**
-  ```
-  @sveltejs/kit 1.0.0.next-71 
-  @sveltejs/adapter-static 1.0.0.next-4
-  ```
-- using `@tailwindcss/jit`
-- replace `postcss-preset-env to postcss-nested`, feel free to replace it back
-- add transition
+<h3 align="center">Sunshine UI</h3>
 
-### version 0.0.2
+  <p align="center">
+    Sunshine is a display streaming host for Moonlight clients using the GameStream protocol.<br>
+    This UI was created using Svelte and Tailwind CSS.
+    <br />
+    <br />
+    <a href="https://github.com/TheChoconut/sunshine-ui-svelte">View Demo</a>
+    ·
+    <a href="https://github.com/TheChoconut/sunshine-ui-svelte/issues">Report Bug</a>
+    ·
+    <a href="https://github.com/TheChoconut/sunshine-ui-svelte/issues">Request Feature</a>
+  </p>
+</div>
 
-```
-@sveltejs/kit 1.0.0.next-49
-@sveltejs/adapter-static 1.0.0.next-3
-```
 
-## Demo
 
-![Sveltekit with Tailwind](static/screenshot.png)
+<!-- TABLE OF CONTENTS -->
+<details>
+  <summary>Table of Contents</summary>
+  <ol>
+    <li>
+      <a href="#about-the-project">About The Project</a>
+      <ul>
+        <li><a href="#built-with">Built With</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="#getting-started">Getting Started</a>
+      <ul>
+        <li><a href="#prerequisites">Prerequisites</a></li>
+        <li><a href="#installation">Installation</a></li>
+      </ul>
+    </li>
+    <li><a href="#usage">Usage</a></li>
+    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#contributing">Contributing</a></li>
+    <li><a href="#license">License</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="#acknowledgments">Acknowledgments</a></li>
+  </ol>
+</details>
 
-Go to [**Live Demo**](https://sveltekit-tailwind2.netlify.app/)
 
-## Running the project
 
-Clone this repo and cd to the directory, then run npm or yarn
+<!-- ABOUT THE PROJECT -->
+## About The Project
 
-```bash
-pnpx degit dansvel/sveltekit-typescript-postcss-tailwind2 myproject
-cd myproject
-pnpm install ## or npm or yarn
-pnpm run dev
-```
+Sunshine is a display streaming host for Moonlight clients using the GameStream protocol.<br>
+This UI was created using Tauri, Svelte and Tailwind CSS.
 
-Open up your favorite browser, go to localhost:3000 and try clicking around.
+<p align="right">(<a href="#top">back to top</a>)</p>
 
-Or you can play with the code, just check `src/routes/index.svelte` and try to edit the something.
 
-## build and generate static web
 
-```bash
-pnpm run build
-```
+### Built With
 
-with the command above, now you can generate static web, you can deploy the project in netlify, begin, vercel or else
+* [Tauri](https://nextjs.org/)
+* [Svelte](https://svelte.dev/)
+* [Tailwind CSS](https://tailwindcss.com)
 
-## Documentation
- - dev.to post [here](https://dev.to/dansvel/sveltekit-svelte-next-with-tailwind-2-4dnn) (outdate).
- - please read the [official documentation](https://kit.svelte.dev/)
+<p align="right">(<a href="#top">back to top</a>)</p>
 
-## Credits
-- [svelte-local-storage-store](https://github.com/joshnuss/svelte-local-storage-store) by Joshua Nussbaum
+
+
+<!-- GETTING STARTED -->
+## Getting Started
+
+This is an example of how you may give instructions on setting up your project locally.
+To get a local copy up and running follow these simple example steps.
+
+### Build
+
+1. Clone the repo
+   ```sh
+   git clone https://github.com/TheChoconut/sunshine-ui-svelte.git
+   ```
+2. Install NPM packages
+   ```sh
+   pnpm install
+   ```
+3. Run `pnpm tauri dev` and `pnpm dev`
+   ```sh
+   pnpm dev &
+   pnpm tauri dev
+   ```
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+
+
+<!-- USAGE EXAMPLES -->
+## Usage
+
+Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+
+
+<!-- ROADMAP -->
+## Roadmap
+
+- [ ] Make UI more consistent
+- [ ] Game Import
+- [ ] Application Library
+
+See the [open issues](https://github.com/TheChoconut/sunshine-ui-svelte/issues) for a full list of proposed features (and known issues).
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+
+
+<!-- CONTRIBUTING -->
+## Contributing
+
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+
+If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
+Don't forget to give the project a star! Thanks again!
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+
+
+<!-- LICENSE -->
+## License
+
+Distributed under the GNU GPLv3 License. See `LICENSE` for more information.
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+
+
+<!-- CONTACT -->
+## Contact
+
+Project Link: [https://github.com/TheChoconut/sunshine-ui-svelte](https://github.com/TheChoconut/sunshine-ui-svelte)
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+
+
+<!-- ACKNOWLEDGMENTS -->
+## Acknowledgments
+
+* []()
+* []()
+* []()
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+
+
+<!-- MARKDOWN LINKS & IMAGES -->
+<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+[contributors-shield]: https://img.shields.io/github/contributors/TheChoconut/sunshine-ui-svelte.svg?style=for-the-badge
+[contributors-url]: https://github.com/TheChoconut/sunshine-ui-svelte/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/TheChoconut/sunshine-ui-svelte.svg?style=for-the-badge
+[forks-url]: https://github.com/TheChoconut/sunshine-ui-svelte/network/members
+[stars-shield]: https://img.shields.io/github/stars/TheChoconut/sunshine-ui-svelte.svg?style=for-the-badge
+[stars-url]: https://github.com/TheChoconut/sunshine-ui-svelte/stargazers
+[issues-shield]: https://img.shields.io/github/issues/TheChoconut/sunshine-ui-svelte.svg?style=for-the-badge
+[issues-url]: https://github.com/TheChoconut/sunshine-ui-svelte/issues
+[license-shield]: https://img.shields.io/github/license/TheChoconut/sunshine-ui-svelte.svg?style=for-the-badge
+[license-url]: https://github.com/TheChoconut/sunshine-ui-svelte/blob/master/LICENSE

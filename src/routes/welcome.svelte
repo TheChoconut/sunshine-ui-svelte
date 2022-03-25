@@ -1,11 +1,11 @@
 <script>
-	import FaCheck from 'svelte-icons/fa/FaCheck.svelte';
 	import { onMount } from 'svelte';
-    import FaArrowRight from 'svelte-icons/fa/FaArrowRight.svelte'
-    import FaKey from 'svelte-icons/fa/FaKey.svelte'
-    import FaExclamationTriangle from 'svelte-icons/fa/FaExclamationTriangle.svelte'
+    import arrowRight12Regular from '@iconify/icons-fluent/arrow-right-12-regular';
+    import plugConnected20Filled from '@iconify/icons-fluent/plug-connected-20-filled';
+    import warning12Filled from '@iconify/icons-fluent/warning-12-filled';
     import { APIAuthenticate, APIConfiguration, TestConnection } from '$lib/api';
     import LoadingSpinner from '$lib/LoadingSpinner.svelte';
+    import Icon from '@iconify/svelte';
 
     let visible = false;
     onMount(() => {
@@ -44,9 +44,9 @@
                 Welcome to<br> 
                 <span class="font-bold text-5xl">Sunshine</span>
             </div>
-            <button on:click={() => formState = 1} class="w-full rounded-lg bg-blue-200 text-blue-900 px-6 py-4 font-medium flex space-x-1 mt-4 items-center justify-center hover:ring-3 ring-blue-100 ring-offset-2">
+            <button on:click={() => formState = 1} class="w-full mt-4 bg-accent-500 text-white flex gap-2 hover:(bg-accent-700) active:(opacity-80) px-6 text-sm h-10 transition-shadow leading-4 items-center justify-center rounded">
                 <span>Continue</span>
-                <div class="w-4 h-4"><FaArrowRight /></div>
+                <Icon icon={arrowRight12Regular} class="w-4 h-4" />
             </button>
         </div>
     {:else if formState == 1}
@@ -57,32 +57,31 @@
         <span class="text-gray-500 w-full text-xl py-8 text-center px-10">Connect to Sunshine API</span>
         {#if error}
             <div class="w-full bg-yellow-100 text-yellow-900 border-l-6 py-4 px-4 border-yellow-600 flex items-center gap-2">
-                <span class="w-4 h-4"><FaExclamationTriangle /></span>
+                <span class="w-4 h-4"><Icon icon={warning12Filled} /></span>
                 {error}
             </div>
         {/if}
         <div class="flex gap-2">
             <div class="flex-1">
-                <label for="host" class="text-gray-500 text-xl flex items-center space-x-1 mb-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" class="w-6 h-6" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><path d="M16 11h-2V9h2v2M3 5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5m7 2H8v10h2V7m2 10h2v-4h2a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-4v10z" fill="currentColor"/></svg><span>Host</span>
+                <label for="host" class="flex items-center mt-2">
+                    <span>Host</span>
                 </label>
-                <input type="text" id="host" bind:value={host} class="rounded-lg border border-gray-400 w-full h-10 pl-2 mb-2" />
+                <input type="text" id="host" bind:value={host} class="w-full h-9 border-gray-200 border-b-gray-500 focus:(border-b-accent-500 border-b-2) focus:(outline-none) border-1 pl-3 rounded" />
             </div>
             <div>
-                <label for="port" class="text-gray-500 text-xl flex items-center space-x-1 mb-2">
+                <label for="port" class="flex items-center mt-2">
                     <span>Port</span>
                 </label>
-                <input type="number" id="port" min={0} max={65529} bind:value={port} class="rounded-lg border border-gray-400 h-10 pl-2 mb-2" />
+                <input type="number" id="port" min={0} max={65529} bind:value={port} class="h-9 border-gray-200 border-b-gray-500 focus:(border-b-accent-500 border-b-2) focus:(outline-none) border-1 pl-3 rounded w-24" />
             </div>
         </div>
-        <label for="password" class="text-gray-500 text-xl flex items-center gap-1 mb-2">
-            <div class="w-4 h-4"><FaKey /></div>
+        <label for="password" class="flex items-center gap-1 mt-2">
             <span>Password</span>
         </label>
-        <input type="password" id="password" bind:value={password} class="rounded-lg border border-gray-400 w-full h-10 pl-2 mb-2" />
-        <button on:click={() => tryConnect()} class="rounded-lg bg-blue-200 text-blue-900 ring-blue-100 hover:ring-3 px-6 py-4 font-medium flex space-x-2 mt-4 items-center justify-center ring-offset-2">
+        <input type="password" id="password" bind:value={password} class="h-9 border-gray-200 border-b-gray-500 focus:(border-b-accent-500 border-b-2) focus:(outline-none) border-1 pl-3 rounded w-full" />
+        <button on:click={() => tryConnect()} class="mt-4 bg-accent-500 text-white flex gap-2 hover:(bg-accent-700) active:(opacity-80) px-6 text-sm h-10 transition-shadow leading-4 items-center justify-center rounded">
+            <Icon icon={plugConnected20Filled} class="w-4 h-4"/>
             <span>Connect</span>
-            <div class="w-4 h-4"><FaCheck /></div>
         </button>
     {:else if formState == 2}
         <div class="flex flex-col justify-center items-center gap-2">

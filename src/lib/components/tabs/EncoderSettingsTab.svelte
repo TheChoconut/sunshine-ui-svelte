@@ -1,8 +1,8 @@
 <script lang="ts">
-	import type { SunshineConfiguration } from '../api';
+	import type { SunshineConfiguration } from '../../api';
     import { getContext } from 'svelte';
     import type { Writable } from 'svelte/store';
-import SettingPart from '$lib/components/SettingPart.svelte';
+    import SettingPart from '../SettingPart.svelte';
 
     const config = getContext('SunshineSettings') as Writable<SunshineConfiguration>;
 
@@ -13,7 +13,7 @@ import SettingPart from '$lib/components/SettingPart.svelte';
     <span slot="help">Minimum number of threads used by ffmpeg to encode the video.<br />
         Increasing the value reduces encoding efficiency, but is more efficient on multiple CPU cores.<br/> 
         Ideal value is the lowest number that can reliably encode at your desired streaming settings on your hardware.</span>
-    <input bind:value={$config.min_threads} slot="input" type="number" min={1} placeholder={"1"} class="h-10 border-gray-300 border-1 pl-4 rounded-lg w-24" />
+    <input bind:value={$config.min_threads} slot="input" type="number" min={1} placeholder={"1"} class="h-9 border-gray-200 border-b-gray-500 focus:(border-b-accent-500 border-b-2) focus:(outline-none) border-1 pl-3 rounded w-24" />
 </SettingPart>
 <SettingPart>
     <span slot="title">HEVC encoding</span>
@@ -58,11 +58,11 @@ import SettingPart from '$lib/components/SettingPart.svelte';
 {#if encoder === 'software'}
     <SettingPart inputType='long'>
         <span slot="title">SW presets</span>
-        <input bind:value={$config.sw_preset} slot="input" type="text" placeholder={"superfast"} class="h-10 border-gray-300 border-1 pl-4 rounded-lg w-full" />
+        <input bind:value={$config.sw_preset} slot="input" type="text" placeholder={"superfast"} class="h-9 border-gray-200 border-b-gray-500 focus:(border-b-accent-500 border-b-2) focus:(outline-none) border-1 pl-3 rounded w-full" />
     </SettingPart>
     <SettingPart inputType='long'>
         <span slot="title">SW tune</span>
-        <input bind:value={$config.sw_tune} slot="input" type="text" placeholder={"zerolatency"} class="h-10 border-gray-300 border-1 pl-4 rounded-lg w-full" />
+        <input bind:value={$config.sw_tune} slot="input" type="text" placeholder={"zerolatency"} class="h-9 border-gray-200 border-b-gray-500 focus:(border-b-accent-500 border-b-2) focus:(outline-none) border-1 pl-3 rounded w-full" />
     </SettingPart>
 {:else if encoder === 'amd'}
     <SettingPart inputType='long'>

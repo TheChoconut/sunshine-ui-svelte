@@ -1,12 +1,9 @@
 import { localStore } from '$lib/localStore'
-import { pinDialog } from '$lib/store';
+import { invoke } from '@tauri-apps/api';
+import { WebviewWindow, primaryMonitor } from '@tauri-apps/api/window';
+import { listen } from '@tauri-apps/api/event'
 import { get } from 'svelte/store';
 
-export type WindowProps = {
-    x: number;
-    y: number;
-    app: SunshineApplication;
-};
 export type SunshineApplication = { 
     id: string;
     name: string;
@@ -17,6 +14,17 @@ export type SunshineApplication = {
     cwd: string;
 }
 export const EmptySunshineApp: SunshineApplication = { id: "-1", name: "Untitled", output: "", "prep-cmd": [], detached: [], cmd: "", cwd: "" }
+export type ConfigProperty = {
+    name: string;
+    translated_name: string;
+    description: string;
+    translated_description: string;
+    required: boolean;
+    type: "int" | "double" | "string" | "int_array" | "string_array" | "file" | "boolean" | "limited_string" | "custom";
+}
+export type ConfigGetSchemaAPIResult = GenericResponse & {
+    [key: string]: ConfigProperty;
+}
 export type SunshineConfiguration = {
     sunshine_name: string;
     amd_quality: string;
@@ -65,12 +73,13 @@ export type ConfigGetAPIResult = GenericResponse & SunshineConfiguration
 export type APIVersionResult = GenericResponse & { api_version: string; version: string; }
 export type APIResponseTypes = {
     'get_apps': ApplicationsGetAPIResult,
-    'save_app': GenericResponse,
+    'get_config': ConfigGetAPIResult,
+    'get_config_schema': ConfigGetSchemaAPIResult,
+    'api_version': APIVersionResult,
     'delete_app': GenericResponse,
     'save_config': GenericResponse,
-    'get_config': ConfigGetAPIResult,
+    'save_app': GenericResponse,
     'save_pin': GenericResponse,
-    'api_version': APIVersionResult,
     'close_app': GenericResponse,
     'unpair_all': GenericResponse
 }
@@ -87,8 +96,8 @@ type APIProps = {
     token?: string;
 }
 
-let ServerAPIEvents: EventSource | null = null;
-export const APIConfiguration = localStore<APIProps>('apiConfig', { host: 'localhost', port: '47990', endpoints: { api: 'api/v1', appAsset: 'appasset', auth: 'api/authenticate', events: 'api/events' }, token: ''});
+const ServerAPIEvents = { active: false, unlistenFn: null };
+export const APIConfiguration = localStore<APIProps>('apiConfig', { host: 'localhost', port: '47990', endpoints: { api: 'api/en', appAsset: 'appasset', auth: 'api/authenticate', events: 'api/events' }, token: ''});
 
 export function getEndpointUrl(endpointType: 'auth' | 'events' | 'api' | 'appAsset'): string {
     const config = get(APIConfiguration);
@@ -97,9 +106,13 @@ export function getEndpointUrl(endpointType: 'auth' | 'events' | 'api' | 'appAss
 
 export async function APIRequest<T extends keyof APIResponseTypes>(type: T, data: any = null): Promise<APIResponseTypes[T] | null> {
     const config = get(APIConfiguration);
-    const headers = config.token ? { 'Authorization': 'Bearer ' + config.token } : {};
-    return fetch(`https://${config.host}:${config.port}/${config.endpoints.api}/${type}`, { body: data ? JSON.stringify(data) : null, method: data ? 'POST' : 'GET', mode: 'cors', headers })
-        .then((response) => response.json())
+    const authorization = config.token ? `Bearer ${config.token}` : "";
+    return invoke('fetch', { url: getEndpointUrl('api') + '/' + type, body: data ? JSON.stringify(data) : '', method: data ? 'POST' : 'GET', authorization })
+        .then((res: string) => JSON.parse(res))
+        .then((res) => {
+            if (res.code === 200) return JSON.parse(res.result);
+            else throw "Invalid code: " + res.code;
+        })
         .catch((err) => {
             console.debug('API request failed',err);
             return null;
@@ -107,35 +120,78 @@ export async function APIRequest<T extends keyof APIResponseTypes>(type: T, data
 }
 
 export async function APIAuthenticate(password: string): Promise<boolean> {
-    const config = get(APIConfiguration);
-    
-    const headers = { 'Authorization': 'Basic ' + Base64.encode("sunshine" + ":" + password) };
-    return fetch(`https://${config.host}:${config.port}/${config.endpoints.auth}`, { headers, method: 'POST' })
-        .then(async (response) => {
-            if (response.ok) {
-                const text = await response.text();
-                APIConfiguration.update((a) => ({...a, token: text}));
+    return invoke('fetch', { url: getEndpointUrl('auth'), body: "", method: 'POST', authorization: "Basic " + Base64.encode("sunshine" + ":" + password) })
+        .then((res: string) => JSON.parse(res))
+        .then(async (res) => {
+            if (res.code === 200) {
+                const token = res.result;
+                APIConfiguration.update((a) => ({...a, token}));
+                const config = get(APIConfiguration);
+                invoke('start_sse', { urlStr: getEndpointUrl("events"), authorization: config.token });
+                ServerAPIEvents.active = true;
+                ServerAPIEvents.unlistenFn = await listen('sse_event', (event) => handleServerEvent(event.payload as string));
                 return true;
-            } else return false;
+            }
+            else return false;
+        })
+        .catch((err) => {
+            console.log(err); 
+            return false;
         });
 }
 
 export function invalidateAPIConfiguration(): void {
     console.log('API configuration will be invalidated');
-    if (ServerAPIEvents) {
+    if (ServerAPIEvents.active === true) {
         console.debug('invalidateAPIConfiguration: closing ServerAPIEvents');
-        ServerAPIEvents.close();
+        invoke('stop_sse')
+            .then((res) => console.log('SSE closing success',res))
+            .catch((res) => console.log('SSE closing failed',res));
+        if (ServerAPIEvents.unlistenFn !== null)
+            ServerAPIEvents.unlistenFn();
+        else
+            console.warn("ServerAPIEvents active, but no event listening function isn't registered.")
+        ServerAPIEvents.unlistenFn = null;
+        ServerAPIEvents.active = false;
     }
-    ServerAPIEvents = null;
     APIConfiguration.update((a) => ({...a, token: ''}));
 }
 
-function handleServerEvent(res: MessageEvent<string>) {
+async function handleServerEvent(res: string) {
     try {
-        const data = JSON.parse(res.data);
+        const data = JSON.parse(res);
         console.debug('API server event',data);
         if (Object.prototype.hasOwnProperty.call(data, 'type')) {
-            if (data.type === 'request_pin') pinDialog.set({ open: true, pin: '' });
+            if (data.type === 'request_pin') {
+                
+                let webview = WebviewWindow.getByLabel('pin_request'); 
+                
+                if (webview === null) {
+                    const monitor = await primaryMonitor();
+                    webview = new WebviewWindow('pin_request', {
+                        url: '/pin',
+                        alwaysOnTop: true,
+                        skipTaskbar: true,
+                        title: 'Pair Requested',
+                        fileDropEnabled: false,
+                        resizable: false,
+                        width: 400,
+                        height: 200,
+                        focus: true,
+                        x: monitor.size.width - 420,
+                        y: monitor.size.height - (200 + 48 + 20),
+                        visible: true,
+                    });
+                } else {
+                    await webview.show();
+                    await webview.setFocus();
+                }
+            } else if (data.type === 'error') {
+                let isConnected = await TestConnection(true);
+                if (!isConnected) {
+                    invalidateAPIConfiguration();
+                }
+            }
         }
     } catch (e) { console.error('Server event fail: ', e); }
 }
@@ -145,21 +201,14 @@ export async function TestConnection(checkForAuth: boolean, suppliedConfig?: API
     if (config.token === "") return;
 
     const result = await APIRequest('api_version')
+        .then((res) => { 
+            console.log(res);
+            return res;
+        })
         .then((result) => Number(result.api_version) >= 1 && (checkForAuth ? result.authenticated === "true" : true))
         .catch((err) => {
             console.log('Connection test failed',err);
             return false;
         });
-    if (result) {
-        if (ServerAPIEvents === null) {
-            ServerAPIEvents = new EventSource(`https://${config.host}:${config.port}/${config.endpoints.events}`);
-            ServerAPIEvents.onmessage = (data) => handleServerEvent(data);
-            ServerAPIEvents.onerror = async () => {
-                if (await TestConnection(false) === false) {
-                    invalidateAPIConfiguration();
-                }
-            }
-        }
-    }
     return result;
 }

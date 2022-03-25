@@ -1,16 +1,16 @@
 <script lang="ts">
-	import type { SunshineConfiguration } from '../api';
+	import type { SunshineConfiguration } from '../../api';
     import { getContext } from 'svelte';
     import type { Writable } from 'svelte/store';
 
-    import SettingPart from '../components/SettingPart.svelte';
+    import SettingPart from '../SettingPart.svelte';
 
     const config = getContext('SunshineSettings') as Writable<SunshineConfiguration>;
 </script>
 <SettingPart>
     <span slot="title">Your PC name</span>
     <span slot="help">The name displayed by Moonlight.<br> If not specified, the PC's hostname is used</span>
-    <input bind:value={$config.sunshine_name} slot="input" type="text" placeholder="Sunshine" class="h-10 border-gray-300 border-1 pl-4 rounded-lg w-full" />
+    <input bind:value={$config.sunshine_name} slot="input" type="text" placeholder="Sunshine" class="h-9 border-gray-200 border-b-gray-500 focus:(border-b-accent-500 border-b-2) focus:(outline-none) border-1 pl-3 rounded w-full" />
   </SettingPart>
   <SettingPart>
     <span slot="title">Log Level</span>
@@ -53,7 +53,7 @@
   <SettingPart>
     <span slot="title">Ping Timeout</span>
     <span slot="help">How long to wait (in milliseconds) for data<br> from moonlight clients before<br> shutting down the stream</span>
-    <input slot="input" bind:value={$config.ping_timeout} type="number" placeholder="10000" class="h-10 pl-4 rounded-lg border-gray-300 border-1 w-full" />
+    <input slot="input" bind:value={$config.ping_timeout} type="number" placeholder="10000" class="h-9 border-gray-200 border-b-gray-500 focus:(border-b-accent-500 border-b-2) focus:(outline-none) border-1 pl-3 rounded w-full" />
   </SettingPart>
   <SettingPart>
     <span slot="title">Map Right Alt key to Windows key</span>

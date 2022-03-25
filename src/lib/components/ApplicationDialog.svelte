@@ -12,24 +12,25 @@
         }).value;
 </script>
 <script lang="ts">
-  import type { SunshineApplication, WindowProps } from '$lib/api'
-  import FaTimes from 'svelte-icons/fa/FaTimes.svelte'
-  import FaCheck from 'svelte-icons/fa/FaCheck.svelte'
-  import { draggable } from '$lib/DragDrop';
+  import type { SunshineApplication } from '$lib/api'
+  import dismiss16Filled from '@iconify/icons-fluent/dismiss-16-filled';
+  import checkmark12Filled from '@iconify/icons-fluent/checkmark-12-filled';
   import SettingPart from '$lib/components/SettingPart.svelte';
   import { onMount } from 'svelte';
-  let windowProps: (WindowProps | null) = null,
+  import Icon from '@iconify/svelte';
+  import { fly } from 'svelte/transition';
+
+  let app: (SunshineApplication | null) = null,
     updateApp: (app: SunshineApplication | {id: string;}) => void
   let title = '',
     isEditTitleMode = false;
 
   let disInput = null;
-  let app = windowProps.app;
-  let detachedScripts = app.detached.join('\n') || '';
+  let detachedScripts = app?.detached.join('\n') || '';
 
   $: {
-    if (windowProps != null && !isEditTitleMode) {
-      title = windowProps.app.name
+    if (!isEditTitleMode) {
+      title = app?.name
     }
     if (disInput != null && isEditTitleMode) {
         disInput.focus();
@@ -40,7 +41,7 @@
 
   let handleTitleKeyPress = (event: KeyboardEvent) => {
     if (event.key == 'Enter') {
-        windowProps.app.name = title
+        app.name = title
         isEditTitleMode = false
     }
   }
@@ -50,12 +51,10 @@
       ({CodeJar} = await import("@novacbn/svelte-codejar"));
   });
 
-  export { windowProps, updateApp }
+  export { app, updateApp }
 </script>
-
-{#if windowProps}
-  <div use:draggable={{initialLoc: [windowProps.x,windowProps.y]}} class="absolute overflow-hidden z-20 w-[800px] h-[600px] rounded-xl shadow-lg bg-white">
-    <div class="bg-blue-200 h-4 w-full mb-4"></div>
+{#if app}
+  <div class="fixed overflow-hidden z-20 w-[100vw] h-[100vh] left-0 top-0 pt-4 rounded-xl shadow-lg bg-white" transition:fly={{ y: 30, duration: 200 }}>
     <div class="flex h-10 items-center px-8">
       {#if isEditTitleMode}
         <input
@@ -64,7 +63,7 @@
           on:blur={() => isEditTitleMode = false}
           type="text"
           bind:value={title}
-          class="text-2xl font-medium flex-1 py-2 border-b-2 border-blue-500 outline-none"
+          class="text-2xl border-gray-200 border-b-gray-500 focus:(border-b-accent-500 border-b-2) focus:(outline-none) border-1 pl-3 rounded w-24"
         />
       {:else}
         <h2 on:dblclick={() => (isEditTitleMode = true)} class="py-2 border-b-2 border-white text-2xl font-medium flex-1">
@@ -76,17 +75,17 @@
           on:click={() => updateApp({...app, detached: detachedScripts.split("\n")})}
           class="rounded-md w-10 h-10 bg-blue-200 bg-opacity-80 flex items-center justify-center"
         >
-          <div class="w-4 h-4 text-blue-900"><FaCheck /></div>
+         <Icon icon={checkmark12Filled} class="w-4 h-4 text-blue-900" />
         </button>
         <button
           on:click={() => updateApp({id: app.id})}
           class="rounded-md w-10 h-10 bg-red-200 flex items-center justify-center"
         >
-          <div class="w-4 h-4 text-red-900"><FaTimes /></div>
+          <Icon icon={dismiss16Filled} class="w-4 h-4 text-red-900" />
         </button>
       </div>
     </div>
-    <div class="pl-8 pr-4 w-full h-[500px] overflow-y-scroll">
+    <div class="pl-8 pr-4 w-full h-[calc(100vh-55px)] overflow-y-auto">
       <SettingPart inputType={'full'}>
         <h4 slot="title" class="text-md font-medium">Main command</h4>
         <p slot="help" class="italic text-gray-500 mb-1">The main application started.<br>If empty, a process that sleeps indefinitely is used.</p>
@@ -105,7 +104,7 @@
       <h4 class="text-md font-medium mt-4">Detached scripts</h4>
       <p class="italic text-gray-500">Selected scripts you would like to be run alongside the main command.</p>
       {#if CodeJar}
-        <svelte:component this={CodeJar} bind:value={detachedScripts} syntax="bash" class="hljs" withLineNumbers={true} {highlight} />
+        <svelte:component this={CodeJar} bind:value={detachedScripts} syntax="bash" class="hljs mb-4" withLineNumbers={true} {highlight} />
       {/if}
     </div>
   </div>

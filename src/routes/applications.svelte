@@ -1,8 +1,10 @@
 <script lang="ts">
-  import FaTimes from 'svelte-icons/fa/FaTimes.svelte'
-  import FaPencilAlt from 'svelte-icons/fa/FaPencilAlt.svelte'
-  import FaPlus from 'svelte-icons/fa/FaPlus.svelte'
-  import { APIRequest, EmptySunshineApp, getEndpointUrl, SunshineApplication, WindowProps } from '$lib/api';
+  import edit16Filled from '@iconify/icons-fluent/edit-16-filled';
+  import dismiss16Filled from '@iconify/icons-fluent/dismiss-16-filled';
+  import add12Filled from '@iconify/icons-fluent/add-12-regular';
+  import Icon from '@iconify/svelte'
+  import type { SunshineApplication, WindowProps } from '$lib/api';
+  import { APIRequest, EmptySunshineApp } from '$lib/api'
   import ApplicationDialog from '../lib/components/ApplicationDialog.svelte';
   import { onMount } from 'svelte';
   import { fly } from 'svelte/transition'
@@ -52,7 +54,11 @@
 <content class="w-full">
   <div class="w-full flex">
     <h2 class="text-xl flex-1 font-medium mb-4">Your library</h2>
-    <button on:click={(ev) => handleNewApp(ev)} class="bg-blue-200 text-blue-900 flex gap-2 hover:shadow-lg shadow-blue-900 transition-shadow px-4 leading-4 items-center justify-center rounded"><div class="w-4 h-4 text-blue-900"><FaPlus /></div> New application</button>
+    <button on:click={(ev) => handleNewApp(ev)} 
+      class="bg-accent-500 text-white flex gap-2 hover:(bg-accent-700) active:(opacity-80) px-6 text-sm h-8 transition-shadow leading-4 items-center justify-center rounded">
+      <Icon icon={add12Filled} class="w-4 h-4" />
+      New application
+    </button>
   </div>
   <div class="flex space-x-8">
     {#if apps.length !== 0}
@@ -60,13 +66,13 @@
         <div in:fly={{ y: 20, duration: 200}} class="card relative w-60 rounded-md overflow-hidden shadow bg-gray-200">
           <div class="absolute right-4 top-4 flex space-x-2">
             <button on:click={(ev) => handleUpdateAppClick(ev, appInfo)} class="rounded-md w-10 h-10 bg-blue-200 bg-opacity-80 flex items-center justify-center">
-              <div class="w-4 h-4 text-blue-900"><FaPencilAlt/></div>
+              <Icon icon={edit16Filled} class="w-4 h-4 text-blue-900" />
             </button>
             <button on:click={() => handleDeleteApp(appInfo.id)} class="rounded-md w-10 h-10 bg-red-200  flex items-center justify-center">
-              <div class="w-4 h-4 text-red-900"><FaTimes/></div>
+              <Icon icon={dismiss16Filled} class="w-4 h-4 text-red-900" />
             </button>
           </div>
-          <img class="w-60 h-80" src={`${getEndpointUrl('appAsset')}/${index+2}`} alt="Application cover poster" />
+          <img class="w-60 h-80" src={'https://picsum.photos/200/300'} alt="Application cover poster" />
           <h4 class="absolute bottom-0 card-text-gradient text-center text-white font-medium w-full text-xl pb-5 pt-8">{appInfo.name}</h4>
         </div>
       {/each}

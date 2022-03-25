@@ -13,11 +13,12 @@
 </script>
 <script lang="ts">
   import type { SunshineApplication, WindowProps } from '$lib/api'
-  import FaTimes from 'svelte-icons/fa/FaTimes.svelte'
-  import FaCheck from 'svelte-icons/fa/FaCheck.svelte'
+  import dismiss16Filled from '@iconify/icons-fluent/dismiss-16-filled';
+  import checkmark12Filled from '@iconify/icons-fluent/checkmark-12-filled';
   import { draggable } from '$lib/DragDrop';
   import SettingPart from '$lib/components/SettingPart.svelte';
   import { onMount } from 'svelte';
+  import Icon from '@iconify/svelte';
   let windowProps: (WindowProps | null) = null,
     updateApp: (app: SunshineApplication | {id: string;}) => void
   let title = '',
@@ -76,13 +77,13 @@
           on:click={() => updateApp({...app, detached: detachedScripts.split("\n")})}
           class="rounded-md w-10 h-10 bg-blue-200 bg-opacity-80 flex items-center justify-center"
         >
-          <div class="w-4 h-4 text-blue-900"><FaCheck /></div>
+         <Icon icon={checkmark12Filled} class="w-4 h-4 text-blue-900" />
         </button>
         <button
           on:click={() => updateApp({id: app.id})}
           class="rounded-md w-10 h-10 bg-red-200 flex items-center justify-center"
         >
-          <div class="w-4 h-4 text-red-900"><FaTimes /></div>
+          <Icon icon={dismiss16Filled} class="w-4 h-4 text-red-900" />
         </button>
       </div>
     </div>

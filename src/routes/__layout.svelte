@@ -12,10 +12,10 @@
   import Navbar from '$lib/Navbar.svelte'
   import { onMount } from 'svelte'
   import { APIConfiguration, TestConnection } from '$lib/api';
-  import Sidebar from '$lib/components/Sidebar.svelte';
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import PinDialog from '$lib/components/PinDialog.svelte';
+import PageTransitions from '$lib/PageTransitions.svelte';
 
   export let route;
   onMount(async () => {
@@ -41,15 +41,16 @@
   $: route = $page.url.pathname;
 </script>
 
-<div class="fixed left-0 top-0 -z-10 w-screen h-screen bg-gray-100">
+<div class="fixed left-0 top-0 -z-10 w-screen h-screen bg-gray-50">
 </div>
 {#if route === '/welcome'}
   <slot />
 {:else}
-  <Navbar />
-  <container class="block lg:container mx-auto flex">
-      <Sidebar {route} />
-    <slot />
+  <Navbar {route} />
+  <container class="block lg:(container mx-auto) mx-4 flex">
+    <PageTransitions refresh={route}>
+      <slot />
+    </PageTransitions>
   </container>
 {/if}
 

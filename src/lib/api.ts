@@ -19,6 +19,17 @@ export type SunshineApplication = {
     cwd: string;
 }
 export const EmptySunshineApp: SunshineApplication = { id: "-1", name: "Untitled", output: "", "prep-cmd": [], detached: [], cmd: "", cwd: "" }
+export type ConfigProperty = {
+    name: string;
+    translated_name: string;
+    description: string;
+    translated_description: string;
+    required: boolean;
+    type: "int" | "double" | "string" | "int_array" | "string_array" | "file" | "boolean" | "limited_string" | "custom";
+}
+export type ConfigGetSchemaAPIResult = GenericResponse & {
+    [key: string]: ConfigProperty;
+}
 export type SunshineConfiguration = {
     sunshine_name: string;
     amd_quality: string;
@@ -67,12 +78,13 @@ export type ConfigGetAPIResult = GenericResponse & SunshineConfiguration
 export type APIVersionResult = GenericResponse & { api_version: string; version: string; }
 export type APIResponseTypes = {
     'get_apps': ApplicationsGetAPIResult,
-    'save_app': GenericResponse,
+    'get_config': ConfigGetAPIResult,
+    'get_config_schema': ConfigGetSchemaAPIResult,
+    'api_version': APIVersionResult,
     'delete_app': GenericResponse,
     'save_config': GenericResponse,
-    'get_config': ConfigGetAPIResult,
+    'save_app': GenericResponse,
     'save_pin': GenericResponse,
-    'api_version': APIVersionResult,
     'close_app': GenericResponse,
     'unpair_all': GenericResponse
 }
@@ -90,7 +102,7 @@ type APIProps = {
 }
 
 const ServerAPIEvents = { active: false, unlistenFn: null };
-export const APIConfiguration = localStore<APIProps>('apiConfig', { host: 'localhost', port: '47990', endpoints: { api: 'api/v1', appAsset: 'appasset', auth: 'api/authenticate', events: 'api/events' }, token: ''});
+export const APIConfiguration = localStore<APIProps>('apiConfig', { host: 'localhost', port: '47990', endpoints: { api: 'api/en', appAsset: 'appasset', auth: 'api/authenticate', events: 'api/events' }, token: ''});
 
 export function getEndpointUrl(endpointType: 'auth' | 'events' | 'api' | 'appAsset'): string {
     const config = get(APIConfiguration);
@@ -120,7 +132,7 @@ export async function APIAuthenticate(password: string): Promise<boolean> {
                 const token = res.result;
                 APIConfiguration.update((a) => ({...a, token}));
                 const config = get(APIConfiguration);
-                invoke('start_sse', { urlStr: `https://${config.host}:${config.port}/${config.endpoints.events}`, authorization: config.token });
+                invoke('start_sse', { urlStr: getEndpointUrl("events"), authorization: config.token });
                 ServerAPIEvents.active = true;
                 ServerAPIEvents.unlistenFn = await listen('sse_event', (event) => handleServerEvent(event.payload as string));
                 return true;

@@ -4,11 +4,6 @@ import { WebviewWindow, primaryMonitor } from '@tauri-apps/api/window';
 import { listen } from '@tauri-apps/api/event'
 import { get } from 'svelte/store';
 
-export type WindowProps = {
-    x: number;
-    y: number;
-    app: SunshineApplication;
-};
 export type SunshineApplication = { 
     id: string;
     name: string;
@@ -190,6 +185,11 @@ async function handleServerEvent(res: string) {
                 } else {
                     await webview.show();
                     await webview.setFocus();
+                }
+            } else if (data.type === 'error') {
+                let isConnected = await TestConnection(true);
+                if (!isConnected) {
+                    invalidateAPIConfiguration();
                 }
             }
         }

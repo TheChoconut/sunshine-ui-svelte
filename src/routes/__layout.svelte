@@ -48,9 +48,7 @@ import PageTransitions from '$lib/PageTransitions.svelte';
 {:else}
   <Navbar {route} />
   <container class="block lg:(container mx-auto) mx-4 flex">
-    <PageTransitions refresh={route}>
-      <slot />
-    </PageTransitions>
+    <slot />
   </container>
 {/if}
 

@@ -3,7 +3,7 @@
   import dismiss16Filled from '@iconify/icons-fluent/dismiss-16-filled';
   import add12Filled from '@iconify/icons-fluent/add-12-regular';
   import Icon from '@iconify/svelte'
-  import type { SunshineApplication, WindowProps } from '$lib/api';
+  import type { SunshineApplication } from '$lib/api';
   import { APIRequest, EmptySunshineApp } from '$lib/api'
   import ApplicationDialog from '../lib/components/ApplicationDialog.svelte';
   import { onMount } from 'svelte';
@@ -11,28 +11,24 @@
   import { nanoid } from 'nanoid'
 
   let apps: SunshineApplication[] = [];
+  let selectedApp = null;
 
-  type OpenedAppWindows = WindowProps[];
-  let appWindows: OpenedAppWindows = [];
 
   let updateApplication = async (app: SunshineApplication | {id: string}) => {
-    appWindows = appWindows.filter((a) => a.app.id !== app.id);
+    selectedApp = null;
     if (!('name' in app)) return;
+    
     // update app.
-    if (app.id === '-1')
-      app.id = nanoid();
-      await APIRequest('save_app', app);
-      await APIRequest('get_apps').then((a) => apps = JSON.parse(a.content).apps);
+    if (app.id === '-1') app.id = nanoid();
+    await APIRequest('save_app', app);
+    await APIRequest('get_apps').then((a) => apps = JSON.parse(a.content).apps);
   };
 
   let handleUpdateAppClick = (ev: MouseEvent & { currentTarget: EventTarget & HTMLButtonElement; }, app: SunshineApplication) => {
-    
-    appWindows = appWindows.filter((a) => a.app.id !== app.id);
-    appWindows[appWindows.length] = { x: ev.clientX, y: ev.clientY, app };
+    selectedApp = app;
   }
   let handleNewApp = (ev: MouseEvent & { currentTarget: EventTarget & HTMLButtonElement; }) => {
-    appWindows = appWindows.filter((a) => a.app.id !== "-1");
-    appWindows[appWindows.length] = { x: ev.clientX - 800, y: ev.clientY, app: {...EmptySunshineApp} };
+    selectedApp = {...EmptySunshineApp};
   }
   let handleDeleteApp = async (appId: string) => {
     await APIRequest('delete_app', {id: appId});
@@ -48,9 +44,7 @@
   });
   let explorePromise = async () => null;
 </script>
-{#each appWindows as window}
-  <ApplicationDialog windowProps={window} updateApp={updateApplication} />
-{/each}
+<ApplicationDialog app={selectedApp} updateApp={updateApplication} />
 <content class="w-full">
   <div class="w-full flex">
     <h2 class="text-xl flex-1 font-medium mb-4">Your library</h2>

@@ -38,11 +38,11 @@
 
   let tabs = {
     'general': { id: 'general', name: 'General', component: GeneralSettingsTab }, 
-    'av': { id: 'av', name: 'Audio & Video', component: AVSettingsTab },
+    'av': { id: 'av', name: 'Audio/Video', component: AVSettingsTab },
     'input': { id: 'input', name: 'Input', component: InputSettingsTab },
     'files': { id: 'files', name: 'Files', component: FilesSettingsTab },
     'advanced': { id: 'advanced', name: 'Advanced', component: AdvancedSettingsTab },
-    'encoder': { id: 'encoder', name: 'Encoder Settings', component: EncoderSettingsTab },
+    'encoder': { id: 'encoder', name: 'Encoder', component: EncoderSettingsTab },
   };
   let currentTab = 'general';
 </script>

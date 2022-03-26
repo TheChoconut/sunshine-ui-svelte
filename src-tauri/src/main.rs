@@ -71,17 +71,20 @@ async fn start_sse(url_str: String, authorization: String, state: tauri::State<'
 
     loop {
       tokio::select! (
-        event2 = es.next() => {
-          match event2.unwrap() {
-            Ok(reqwest_eventsource::Event::Open) => println!("Connection Open!"),
-            Ok(reqwest_eventsource::Event::Message(message)) => {
-              window.emit_all("sse_event", message.data).unwrap();
+        res = es.next() => {
+          match res {
+            Some(event) => match event {
+              Ok(reqwest_eventsource::Event::Open) => println!("Connection Open!"),
+              Ok(reqwest_eventsource::Event::Message(message)) => {
+                window.emit_all("sse_event", message.data).unwrap();
+              },
+              Err(err) => {
+                window.emit_all("sse_event", "{\"type\": \"error\"}").unwrap();
+                println!("Error: {}", err);
+                es.close();
+              }
             },
-            Err(err) => {
-              window.emit_all("sse_event", "{\"type\": \"error\"}").unwrap();
-              println!("Error: {}", err);
-              es.close();
-            }
+            None => { es.close(); println!("Something failed.") }
           }
         },
         _ = rx.recv() => {

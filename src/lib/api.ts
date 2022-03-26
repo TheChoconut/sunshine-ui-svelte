@@ -114,6 +114,7 @@ export async function APIRequest<T extends keyof APIResponseTypes>(type: T, data
             else throw "Invalid code: " + res.code;
         })
         .catch((err) => {
+            // TODO: If certificate is not trusted, display a message.
             console.debug('API request failed',err);
             return null;
         });
@@ -176,7 +177,7 @@ async function handleServerEvent(res: string) {
                         fileDropEnabled: false,
                         resizable: false,
                         width: 400,
-                        height: 200,
+                        height: 180,
                         focus: true,
                         x: monitor.size.width - 420,
                         y: monitor.size.height - (200 + 48 + 20),

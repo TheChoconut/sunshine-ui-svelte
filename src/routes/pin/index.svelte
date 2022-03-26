@@ -36,7 +36,7 @@ const handleCancel = async () => {
     WebviewWindow.getByLabel('pin_request').hide();
 };
 </script>
-<div class="block fixed z-100 bg-gray-100 w-100 p-4 h-50">
+<div class="block fixed z-100 bg-gray-100 w-100 p-4 h-45">
     <h2 class="text-lg font-bold">Pairing Request</h2>
     <h2 class="text-md mb-2">Enter the PIN displayed on the device.</h2>
     <div class="flex m-auto w-full items-center justify-center gap-2">
@@ -44,8 +44,8 @@ const handleCancel = async () => {
             <input type="text" bind:this={inputs[index]} on:keydown={(ev) => handleKeyPress(ev, index)} bind:value={digits[index]} placeholder="0" min="0" max="9" class="w-10 h-10 text-xl font-bold text-center focus:border-blue-500 outline-none border-2 border-gray-300 rounded" />
         {/each}
     </div>
-    <div class="w-full flex justify-center gap-2">
-        <button bind:this={submitButton} on:click={handlePinSubmit} class="flex-1 h-12 bg-blue-200 text-blue-900 font-bold text-lg text-center rounded-lg mt-4 hover:(ring-2 ring-blue-500) ring-offset-2 transition-all">Enter</button>
-        <button on:click={handleCancel} class="flex-1 h-12 bg-gray-200 text-gray-900 font-bold text-lg text-center rounded-lg mt-4 hover:(ring-2 ring-gray-500) ring-offset-2 transition-all">Cancel</button>
+    <div class="w-full flex justify-center mt-4 gap-2">
+        <button bind:this={submitButton} on:click={handlePinSubmit} class="bg-accent-500 text-white hover:(bg-accent-700) active:(opacity-80) px-8 text-sm h-8 rounded">Enter</button>
+        <button on:click={handleCancel} class="bg-white border-1 border-gray-200 text-black hover:(bg-gray-100) active:(opacity-80) px-8 text-sm h-8 rounded">Cancel</button>
     </div>
 </div>

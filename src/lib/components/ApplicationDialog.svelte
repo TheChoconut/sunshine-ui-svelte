@@ -5,20 +5,18 @@
 
     hljs.registerLanguage("bash", bash);
 
-    // `highlight` takes the input code and returns the highlighted HTML markup
     const highlight = (code: string, syntax: any) =>
         hljs.highlight(code, {
             language: syntax,
         }).value;
 </script>
 <script lang="ts">
-  import type { SunshineApplication } from '$lib/api'
-  import dismiss16Filled from '@iconify/icons-fluent/dismiss-16-filled';
-  import checkmark12Filled from '@iconify/icons-fluent/checkmark-12-filled';
+  import type { SunshineApplication } from '$lib/types'
   import SettingPart from '$lib/components/SettingPart.svelte';
   import { onMount } from 'svelte';
-  import Icon from '@iconify/svelte';
   import { fly } from 'svelte/transition';
+  import { Check, X } from "svelte-heros";
+  import { Input } from "flowbite-svelte";
 
   let app: (SunshineApplication | null) = null,
     updateApp: (app: SunshineApplication | {id: string;}) => void
@@ -75,13 +73,13 @@
           on:click={() => updateApp({...app, detached: detachedScripts.split("\n")})}
           class="rounded-md w-10 h-10 bg-blue-200 bg-opacity-80 flex items-center justify-center"
         >
-         <Icon icon={checkmark12Filled} class="w-4 h-4 text-blue-900" />
+         <Check />
         </button>
         <button
           on:click={() => updateApp({id: app.id})}
           class="rounded-md w-10 h-10 bg-red-200 flex items-center justify-center"
         >
-          <Icon icon={dismiss16Filled} class="w-4 h-4 text-red-900" />
+          <X class="w-4 h-4 text-red-900" />
         </button>
       </div>
     </div>
@@ -89,17 +87,17 @@
       <SettingPart inputType={'full'}>
         <h4 slot="title" class="text-md font-medium">Main command</h4>
         <p slot="help" class="italic text-gray-500 mb-1">The main application started.<br>If empty, a process that sleeps indefinitely is used.</p>
-        <input slot="input" bind:value={app.cmd} class="w-full rounded-lg p-1 border-gray-200 border" />
+        <Input slot="input" bind:value={app.cmd} class="w-full" />
       </SettingPart>
       <SettingPart>
         <h4 slot="title" class="text-md font-medium">Output file</h4>
         <p slot="help">Command output will be saved in this file.<br>Ignored if empty.</p>
-        <input slot="input" type="text" bind:value={app.output} class="w-60 rounded-lg p-1 border-gray-200 border" />
+        <Input slot="input" type="text" bind:value={app.output} class="w-60" />
       </SettingPart>
       <SettingPart>
         <h4 slot="title" class="text-md font-medium">Working directory</h4>
         <p slot="help">In what directory should processes be started in? <br> Some applications use the working directory <br> to search for configuration files.<br> Default: parent directory of the command</p>
-        <input slot="input" placeholder="C:\path\to\game\dir" bind:value={app.cwd} type="text" class="w-60 rounded-lg p-1 pl-2 border-gray-200 border" />
+        <Input slot="input" placeholder="C:\path\to\game\dir" bind:value={app.cwd} type="text" class="w-60" />
       </SettingPart>
       <h4 class="text-md font-medium mt-4">Detached scripts</h4>
       <p class="italic text-gray-500">Selected scripts you would like to be run alongside the main command.</p>

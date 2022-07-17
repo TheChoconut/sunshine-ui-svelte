@@ -1,5 +1,6 @@
 <script lang="ts">
-	import type { SunshineConfiguration } from '../../api';
+	import type { SunshineConfiguration } from '$lib/types';
+    import { Input, Select } from 'flowbite-svelte';
     import { getContext } from 'svelte';
     import type { Writable } from 'svelte/store';
     import SettingPart from '../SettingPart.svelte';
@@ -13,29 +14,29 @@
     <span slot="help">Minimum number of threads used by ffmpeg to encode the video.<br />
         Increasing the value reduces encoding efficiency, but is more efficient on multiple CPU cores.<br/> 
         Ideal value is the lowest number that can reliably encode at your desired streaming settings on your hardware.</span>
-    <input bind:value={$config.min_threads} slot="input" type="number" min={1} placeholder={"1"} class="h-9 border-gray-200 border-b-gray-500 focus:(border-b-accent-500 border-b-2) focus:(outline-none) border-1 pl-3 rounded w-24" />
+    <Input bind:value={$config.min_threads} slot="input" type="number" min={1} placeholder={"1"} class="w-28" />
 </SettingPart>
 <SettingPart>
     <span slot="title">HEVC encoding</span>
     <span slot="help">Allows the client to request HEVC Main or HEVC Main10 video streams.<br />
         HEVC is more CPU-intensive to encode, so enabling this may reduce performance when using software encoding.</span>
-    <select slot="input" bind:value={$config.hevc_mode} class="h-10 px-4 rounded-lg border-gray-300 border-1 w-full">
+    <Select slot="input" bind:value={$config.hevc_mode}>
         <option value="0">Auto (based on encoder)</option>
         <option value="1">Disabled</option>
         <option value="2">HEVC Main Only (No HDR)</option>
         <option value="3">HEVC Main + Main10</option>
-    </select>
+    </Select>
 </SettingPart>
 <SettingPart>
     <span slot="title">Force a specific encoder</span>
     <span slot="help">Force a specific encoder.</span>
-    <select slot="input" bind:value={$config.encoder} class="h-10 px-4 rounded-lg border-gray-300 border-1 w-full">
+    <Select slot="input" bind:value={$config.encoder}>
         <option value="">Auto</option>
         <option value="nvenc">Nvidia NVENC</option>
         <option value="amdvce">AMD AMF/VCE</option>
         <option value="vaapi">VA-API</option>
         <option value="software">Software</option>
-    </select>
+    </Select>
 </SettingPart>
 <div class="flex items-center">
     <h2 class="text-xl font-bold flex-1">Change specific encoder settings</h2>
@@ -58,43 +59,43 @@
 {#if encoder === 'software'}
     <SettingPart inputType='long'>
         <span slot="title">SW presets</span>
-        <input bind:value={$config.sw_preset} slot="input" type="text" placeholder={"superfast"} class="h-9 border-gray-200 border-b-gray-500 focus:(border-b-accent-500 border-b-2) focus:(outline-none) border-1 pl-3 rounded w-full" />
+        <Input bind:value={$config.sw_preset} slot="input" type="text" placeholder={"superfast"} />
     </SettingPart>
     <SettingPart inputType='long'>
         <span slot="title">SW tune</span>
-        <input bind:value={$config.sw_tune} slot="input" type="text" placeholder={"zerolatency"} class="h-9 border-gray-200 border-b-gray-500 focus:(border-b-accent-500 border-b-2) focus:(outline-none) border-1 pl-3 rounded w-full" />
+        <Input bind:value={$config.sw_tune} slot="input" type="text" placeholder={"zerolatency"} />
     </SettingPart>
 {:else if encoder === 'amd'}
     <SettingPart inputType='long'>
         <span slot="title">AMD AMF quality</span>
-        <select bind:value={$config.amd_quality} slot="input" class="h-10 border-gray-300 border-1 pl-4 rounded-lg w-full">
+        <Select bind:value={$config.amd_quality} slot="input">
             <option value="default">Default</option>
             <option value="speed">Speed</option>
             <option value="balanced">Balanced</option>
-        </select>
+        </Select>
     </SettingPart>
     <SettingPart inputType='long'>
         <span slot="title">AMD AMF rate control</span>
-        <select bind:value={$config.amd_rc} slot="input" class="h-10 border-gray-300 border-1 pl-4 rounded-lg w-full">
+        <Select bind:value={$config.amd_rc} slot="input">
             <option value="auto">Let FFMpeg decide</option>
             <option value="speed">Constant (QP)</option>
             <option value="vbr_latency">Latency Constrained Variable Bitrate</option>
             <option value="vbr_peak">Peak Constrained Variable Bitrate</option>
             <option value="cbr">Constant Bitrate</option>
-        </select>
+        </Select>
     </SettingPart>
     <SettingPart inputType='long'>
         <span slot="title">AMD Coder</span>
-        <select bind:value={$config.amd_coder} slot="input" class="h-10 border-gray-300 border-1 pl-4 rounded-lg w-full">
+        <Select bind:value={$config.amd_coder} slot="input">
             <option value="auto">Auto</option>
             <option value="cabac">cabac</option>
             <option value="cavlc">cavlc</option>
-        </select>
+        </Select>
     </SettingPart>
 {:else if encoder === 'nvidia'}
     <SettingPart inputType='long'>
         <span slot="title">NVENC preset</span>
-        <select bind:value={$config.nv_preset} slot="input" class="h-10 border-gray-300 border-1 pl-4 rounded-lg w-full">
+        <Select bind:value={$config.nv_preset} slot="input">
             <option value="default">Default</option>
             <option value="hp">High Performance</option>
             <option value="hq">High Quality</option>
@@ -107,11 +108,11 @@
             <option value="llhq">llhq</option> 
             <option value="llhp">llhp</option>
             <option value="losslesshp">losslesshp</option>
-        </select>
+        </Select>
     </SettingPart>
     <SettingPart inputType='long'>
         <span slot="title">NVENC rate control</span>
-        <select bind:value={$config.nv_rc} slot="input" class="h-10 border-gray-300 border-1 pl-4 rounded-lg w-full">
+        <Select bind:value={$config.nv_rc} slot="input">
             <option value="auto">Let FFMpeg decide</option>
             <option value="constqp">Constant (QP)</option>
             <option value="cbr">Constant Bitrate</option>
@@ -119,14 +120,14 @@
             <option value="cbr_ld_hq">Low delay HQ constant bitrate</option>
             <option value="vbr">Variable Bitrate</option>
             <option value="vbr_hq">High quality variable Bitrate</option>
-        </select>
+        </Select>
     </SettingPart>
     <SettingPart inputType='long'>
         <span slot="title">NVENC Coder</span>
-        <select bind:value={$config.nv_coder} slot="input" class="h-10 border-gray-300 border-1 pl-4 rounded-lg w-full">
+        <Select bind:value={$config.nv_coder} slot="input">
             <option value="auto">Auto</option>
             <option value="cabac">cabac</option>
             <option value="cavlc">cavlc</option>
-        </select>
+        </Select>
     </SettingPart>
 {/if}

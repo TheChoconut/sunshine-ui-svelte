@@ -84,7 +84,7 @@ async fn start_sse(url_str: String, authorization: String, state: tauri::State<'
                 es.close();
               }
             },
-            None => { es.close(); println!("Something failed.") }
+            None => { window.emit_all("sse_event", "{\"type\": \"close\"}").unwrap(); println!("Something failed"); break; }
           }
         },
         _ = rx.recv() => {
@@ -141,9 +141,25 @@ fn main() {
     }
   };
   
-  tauri::Builder::default()
+  let app = tauri::Builder::default()
     .manage(AppState(client, cert.ok(), std::sync::Mutex::new(None)))
     .invoke_handler(tauri::generate_handler![fetch, start_sse, stop_sse])
-    .run(tauri::generate_context!())
+    .build(tauri::generate_context!())
     .expect("error while running tauri application");
+  
+  app.run(|app_handle, e| match e {
+    tauri::RunEvent::CloseRequested { label, .. } => {
+      if label == "main" {
+        let app_handle = app_handle.clone();
+        std::thread::spawn(move || {
+          match app_handle.get_window("pin_request") {
+            None => {},
+            Some(window) => { window.close().unwrap(); }
+          }
+        });
+        
+      }
+    },
+    _ => {}
+  });
 }

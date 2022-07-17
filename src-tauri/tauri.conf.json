@@ -1,7 +1,7 @@
 {
   "package": {
     "productName": "sunshine-ui",
-    "version": "0.1.0"
+    "version": "0.6.0"
   },
   "build": {
     "distDir": "../build",
@@ -13,7 +13,7 @@
     "bundle": {
       "active": true,
       "targets": "all",
-      "identifier": "com.tauri.dev",
+      "identifier": "sunshinestream.sunshine.ui",
       "icon": [
         "icons/32x32.png",
         "icons/128x128.png",
@@ -24,17 +24,15 @@
       "resources": [],
       "externalBin": [],
       "copyright": "",
-      "category": "DeveloperTool",
-      "shortDescription": "",
-      "longDescription": "",
+      "category": "Utility",
+      "shortDescription": "User interface for Sunshine",
+      "longDescription": "User interface for Sunshine,  a display streaming host for Moonlight clients using the GameStream protocol.",
       "deb": {
-        "depends": [],
-        "useBootstrapper": false
+        "depends": []
       },
       "macOS": {
         "frameworks": [],
         "minimumSystemVersion": "",
-        "useBootstrapper": false,
         "exceptionDomain": "",
         "signingIdentity": null,
         "providerShortName": null,

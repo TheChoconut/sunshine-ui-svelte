@@ -1,33 +1,38 @@
 <script>
-	import { onMount } from 'svelte';
-    import arrowRight12Regular from '@iconify/icons-fluent/arrow-right-12-regular';
-    import plugConnected20Filled from '@iconify/icons-fluent/plug-connected-20-filled';
-    import warning12Filled from '@iconify/icons-fluent/warning-12-filled';
-    import { APIAuthenticate, APIConfiguration, TestConnection } from '$lib/api';
-    import LoadingSpinner from '$lib/LoadingSpinner.svelte';
-    import Icon from '@iconify/svelte';
+    import { fly } from 'svelte/transition'
+    import { InformationCircle, Check, ArrowLeft } from 'svelte-heros'
+    import { Card, Alert, Label, Input, Spinner, Button } from 'flowbite-svelte'
+    import { APIAuthenticate, TryTestConnection } from '$lib/api'
+    import { APIConfiguration } from '$lib/store'
+    import { ConnectionResult } from '$lib/types'
 
-    let visible = false;
-    onMount(() => {
-        visible = true;
-        APIConfiguration.update((a) => ({...a, token: ''}));
-    });
+    let formState = 0,
+        error = '',
+        host = $APIConfiguration.host,
+        port = $APIConfiguration.port,
+        endpoints = $APIConfiguration.endpoints,
+        password = ''
 
-    let formState = 0, error = "", host = $APIConfiguration.host, port = $APIConfiguration.port, endpoints = $APIConfiguration.endpoints, password = "";
-
-    let tryConnect = () => {
-        formState = 2;
-        TestConnection(false, {host, port, endpoints}).then((result) => {
-            if (!result) {
-                formState = 1;
-                error = "Cannot reach the server. Is your data correct?";
+    let tryConnect = (ev) => {
+        ev.preventDefault()
+        formState = 1
+        APIConfiguration.update(() => ({ host, port, endpoints, token: '' }))
+        TryTestConnection(false, { host, port, endpoints }).then(result => {
+            if (result == ConnectionResult.INVALID_CERTIFICATE) {
+                formState = 2
+            } else if (result != ConnectionResult.CONNECTION_OK) {
+                formState = 0
+                if (result == ConnectionResult.OUTDATED_API)
+                    error =
+                        "The server's API version is outdated. Update server to a newer version in order to use this client."
+                else if (result == ConnectionResult.CONNECTION_FAIL)
+                    error =
+                        'Something went wrong while connecting to your server. Is your data valid?'
             } else {
-                console.debug("Testing authenticated connection");
-                APIConfiguration.set({ host, port, endpoints, token: '' });
-                APIAuthenticate(password).then((authenticated) => {
+                APIAuthenticate(password).then(authenticated => {
                     if (!authenticated) {
-                        formState = 1;
-                        error = "Password is invalid. Try again";
+                        formState = 0
+                        error = 'Password is invalid. Try again'
                     }
                 })
             }
@@ -35,69 +40,75 @@
     }
 </script>
 
-{#if visible}
-<main class="bg-white shadow-lg w-120 rounded-3xl flex p-8 flex-col">
-    {#if formState == 0}
-        <div class="py-8 w-full">
-            <img src="/sunshine.png" alt="Sunshine Icon" class="mx-auto h-40 w-40 mb-4" />
-            <div class="col-span-6 col-start-9 row-start-3 text-center text-3xl">
-                Welcome to<br> 
-                <span class="font-bold text-5xl">Sunshine</span>
+<main
+    transition:fly={{ y: 50, duration: 500 }}
+    class="max-w-lg w-full absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
+    <Card
+        textdivClass="p-5 w-full h-full"
+        divClass="w-full min-h-[380px] bg-white rounded-lg border border-gray-200 shadow-md dark:bg-gray-800 dark:border-gray-700">
+        <div slot="paragraph" class="w-full min-h-[380px] flex flex-col">
+            <div class="flex items-center justify-center space-x-4">
+                <img class="w-14 h-14" src="/sunshine.png" alt="Sunshine Icon" />
+                <div class="text-center font-medium text-4xl">Sunshine</div>
             </div>
-            <button on:click={() => formState = 1} class="w-full mt-4 bg-accent-500 text-white flex gap-2 hover:(bg-accent-700) active:(opacity-80) px-6 text-sm h-10 transition-shadow leading-4 items-center justify-center rounded">
-                <span>Continue</span>
-                <Icon icon={arrowRight12Regular} class="w-4 h-4" />
-            </button>
+            {#if formState == 0}
+                <div class="text-gray-500 w-full text-xl py-4 text-center px-10">
+                    Connect to Sunshine API
+                </div>
+                {#if error}
+                    <Alert color="yellow" icon={InformationCircle}>
+                        {error}
+                    </Alert>
+                {/if}
+                <form on:submit={tryConnect}>
+                    <div class="flex gap-2 w-full mb-2">
+                        <div class="flex-1">
+                            <Label for="ipaddr" class="block mb-2">IP Address / Host name</Label>
+                            <Input id="ipaddr" autocomplete="on" bind:value={host} placeholder="127.0.0.1" />
+                        </div>
+                        <div class="w-24">
+                            <Label for="port" class="block mb-2">Port</Label>
+                            <Input
+                                id="port"
+                                bind:value={port}
+                                type="number"
+                                placeholder="47756"
+                                min={0}
+                                max={65525} />
+                        </div>
+                    </div>
+                    <div class="mb-4 w-full">
+                        <Label for="password" class="block mb-2">Password</Label>
+                        <Input type="password" autocomplete="current-password" bind:value={password} placeholder="Password" />
+                    </div>
+                    <Button type="submit" color="blue" class="w-full space-x-2">
+                        <Check />
+                        <span>Connect</span>
+                    </Button>
+                </form>
+            {:else if formState == 1}
+                <div class="flex-1 w-full h-full flex flex-col justify-center items-center gap-2">
+                    <Spinner size="16" />
+                    <span class="text-xl font-medium mt-2">Connecting...</span>
+                </div>
+            {:else if formState == 2}
+                <span class="text-gray-500 w-full text-xl py-4 text-center px-10"
+                    >Invalid certificate</span>
+                <p class="text-justify mb-2">
+                    Sunshine by default uses a self-signed certificate to achieve an HTTPS
+                    connection. You need to provide the server certificate file located in
+                    Sunshine's credentials directory in order to connect. This file is located at
+                    <span class="bg-gray-600 border-gray-900 p-1 rounded text-red-100 text-italic">
+                        credentials/webapi-cacert.pem
+                    </span>.
+                    <br /> <br />
+                    Copy this file at the root directory of this application and restart the client.
+                </p>
+                <Button color="blue" on:click={() => (formState = 0)} class="space-x-2">
+                    <ArrowLeft />
+                    <span>Back</span>
+                </Button>
+            {/if}
         </div>
-    {:else if formState == 1}
-        <div class="flex items-center space-x-4 mx-auto">
-            <img class="h-16 w-16" src="/sunshine.png" alt="Sunshine Icon" />
-            <div class="col-span-6 col-start-9 row-start-3 text-center font-medium text-4xl">Sunshine</div>
-        </div>
-        <span class="text-gray-500 w-full text-xl py-8 text-center px-10">Connect to Sunshine API</span>
-        {#if error}
-            <div class="w-full bg-yellow-100 text-yellow-900 border-l-6 py-4 px-4 border-yellow-600 flex items-center gap-2">
-                <span class="w-4 h-4"><Icon icon={warning12Filled} /></span>
-                {error}
-            </div>
-        {/if}
-        <div class="flex gap-2">
-            <div class="flex-1">
-                <label for="host" class="flex items-center mt-2">
-                    <span>Host</span>
-                </label>
-                <input type="text" id="host" bind:value={host} class="w-full h-9 border-gray-200 border-b-gray-500 focus:(border-b-accent-500 border-b-2) focus:(outline-none) border-1 pl-3 rounded" />
-            </div>
-            <div>
-                <label for="port" class="flex items-center mt-2">
-                    <span>Port</span>
-                </label>
-                <input type="number" id="port" min={0} max={65529} bind:value={port} class="h-9 border-gray-200 border-b-gray-500 focus:(border-b-accent-500 border-b-2) focus:(outline-none) border-1 pl-3 rounded w-24" />
-            </div>
-        </div>
-        <label for="password" class="flex items-center gap-1 mt-2">
-            <span>Password</span>
-        </label>
-        <input type="password" id="password" bind:value={password} class="h-9 border-gray-200 border-b-gray-500 focus:(border-b-accent-500 border-b-2) focus:(outline-none) border-1 pl-3 rounded w-full" />
-        <button on:click={() => tryConnect()} class="mt-4 bg-accent-500 text-white flex gap-2 hover:(bg-accent-700) active:(opacity-80) px-6 text-sm h-10 transition-shadow leading-4 items-center justify-center rounded">
-            <Icon icon={plugConnected20Filled} class="w-4 h-4"/>
-            <span>Connect</span>
-        </button>
-    {:else if formState == 2}
-        <div class="flex flex-col justify-center items-center gap-2">
-            <LoadingSpinner />
-            <span class="text-xl">Connecting...</span>
-        </div>
-    {/if}
+    </Card>
 </main>
-{/if}
-
-
-<style>
-    main {
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-    }
-</style>

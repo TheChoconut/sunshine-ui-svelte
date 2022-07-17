@@ -1,5 +1,5 @@
 {
-    "tabWidth": 2,
+    "tabWidth": 4,
     "arrowParens": "avoid",
     "singleQuote": true,
     "printWidth": 100,
@@ -7,7 +7,7 @@
     "semi": false,
     "svelteSortOrder": "options-scripts-markup-styles",
     "svelteStrictMode": false,
-    "svelteBracketNewLine": true,
+    "bracketSameLine": true,
     "svelteIndentScriptAndStyle": true,
     "trailingComma": "none"
 }

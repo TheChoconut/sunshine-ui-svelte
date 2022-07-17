@@ -1,55 +1,33 @@
-<script context="module">
-	export const load = async (session) => {
-		return {
-			props: {
-				route: session.url.pathname
-			}
-		}
-	};
-</script>
 <script lang="ts">
-  import "virtual:windi.css"
-  import Navbar from '$lib/Navbar.svelte'
-  import { onMount } from 'svelte'
-  import { APIConfiguration, TestConnection } from '$lib/api';
-  import { goto } from '$app/navigation';
-  import { page } from '$app/stores';
-  import PinDialog from '$lib/components/PinDialog.svelte';
-import PageTransitions from '$lib/PageTransitions.svelte';
+    import '../app.css'
+    import Navbar from '$lib/components/Navbar.svelte'
+    import { page } from '$app/stores'
+    import { onMount } from 'svelte'
+    import { TryTestConnection } from '$lib/api'
+    import { ConnectionResult } from '$lib/types'
+    import { goto } from '$app/navigation'
 
-  export let route;
-  onMount(async () => {
-    APIConfiguration.subscribe(async (a) => {
-      if (a.token !== "") {
-        if ($page.url.pathname === '/welcome') goto("/");
-      } else {
-        if ($page.url.pathname !== '/welcome') {
-          goto("/welcome");
+    let route = $page.url.pathname
+    $: route = $page.url.pathname
+
+    let loaded = false;
+
+    onMount(async () => {
+        if (
+            (await TryTestConnection(true)) !== ConnectionResult.CONNECTION_OK &&
+            $page.url.pathname !== '/welcome'
+        ) {
+            goto('/welcome')
         }
-      }
-    });
-    if ($APIConfiguration.token === "") {
-      if (route !== '/welcome') {
-        goto("/welcome");
-      }
-    } else {
-      if (await TestConnection(true) === false) {
-        goto("/welcome");
-      }
-    }
-  });
-  $: route = $page.url.pathname;
+        loaded = true;
+    })
 </script>
 
-<div class="fixed left-0 top-0 -z-10 w-screen h-screen bg-gray-50">
-</div>
-{#if route === '/welcome'}
-  <slot />
-{:else}
-  <Navbar {route} />
-  <container class="block lg:(container mx-auto) mx-4 flex">
-    <slot />
-  </container>
+{#if route !== '/welcome'}
+    <Navbar {route} />
 {/if}
-
-<PinDialog />
+<container class="lg:(container mx-auto) mx-4 flex">
+    {#if loaded}
+    <slot />
+    {/if}
+</container>

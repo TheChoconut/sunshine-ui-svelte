@@ -6,6 +6,7 @@ export default {
   preprocess: preprocess({ postcss: true }),
 
   kit: {
-    adapter: adapter()
+    adapter: adapter(),
+    prerender: { default: true }
   }
 }

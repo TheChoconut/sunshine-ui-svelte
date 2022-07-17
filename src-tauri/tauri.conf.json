@@ -1,13 +1,13 @@
 {
   "package": {
     "productName": "sunshine-ui",
-    "version": "0.6.0"
+    "version": "0.7.0"
   },
   "build": {
     "distDir": "../build",
     "devPath": "http://localhost:3000",
-    "beforeDevCommand": "",
-    "beforeBuildCommand": ""
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build"
   },
   "tauri": {
     "bundle": {

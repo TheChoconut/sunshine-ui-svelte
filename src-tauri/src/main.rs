@@ -148,17 +148,20 @@ fn main() {
     .expect("error while running tauri application");
   
   app.run(|app_handle, e| match e {
-    tauri::RunEvent::CloseRequested { label, .. } => {
-      if label == "main" {
-        let app_handle = app_handle.clone();
-        std::thread::spawn(move || {
-          match app_handle.get_window("pin_request") {
-            None => {},
-            Some(window) => { window.close().unwrap(); }
-          }
-        });
-        
+    tauri::RunEvent::WindowEvent { label, event, .. } => match event {
+      tauri::WindowEvent::CloseRequested { .. } => {
+        if label == "main" {
+          let app_handle = app_handle.clone();
+          std::thread::spawn(move || {
+            match app_handle.get_window("pin_request") {
+              None => {},
+              Some(window) => { window.close().unwrap(); }
+            }
+          });
+          
+        }
       }
+      _ => {}
     },
     _ => {}
   });

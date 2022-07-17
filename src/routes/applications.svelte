@@ -1,11 +1,13 @@
 <script lang="ts">
     import type { SunshineApplication } from '$lib/types'
-    import { APIRequest, EmptySunshineApp } from '$lib/api'
+    import { APIRequest, EmptySunshineApp, getEndpointUrl } from '$lib/api'
     import ApplicationDialog from '$lib/components/ApplicationDialog.svelte'
     import { onMount } from 'svelte'
     import { fly } from 'svelte/transition'
     import { Plus, Pencil, X } from 'svelte-heros'
     import { Button } from 'flowbite-svelte'
+    import { convertFileSrc } from '@tauri-apps/api/tauri';
+    import { nanoid } from 'nanoid';
 
     let apps: SunshineApplication[] = []
     let selectedApp = null
@@ -40,7 +42,7 @@
 </script>
 
 <ApplicationDialog app={selectedApp} updateApp={updateApplication} />
-<content class="w-full">
+<content class="w-full dark:text-white">
     <div class="w-full flex">
         <h2 class="text-xl flex-1 font-medium mb-4">Your library</h2>
         <Button color="blue" on:click={handleNewApp}>
@@ -50,7 +52,7 @@
     </div>
     <div class="flex space-x-8">
         {#if apps.length !== 0}
-            {#each apps as appInfo}
+            {#each apps as appInfo, index (appInfo.id)}
                 <div
                     in:fly={{ y: 20, duration: 200 }}
                     class="card relative w-60 rounded-md overflow-hidden shadow bg-gray-200">
@@ -68,7 +70,7 @@
                     </div>
                     <img
                         class="w-60 h-80"
-                        src={'https://picsum.photos/200/300'}
+                        src={convertFileSrc(getEndpointUrl('appAsset') + '/' + (index + 2) + "?v=" + nanoid(), 'sunshine')}
                         alt="Application cover poster" />
                     <h4
                         class="absolute bottom-0 card-text-gradient text-center text-white font-medium w-full text-xl pb-5 pt-8">

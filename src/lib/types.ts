@@ -43,9 +43,10 @@ export type SunshineApplication = {
     name: string;
     output: string;
     "prep-cmd": { do: string; undo: string; }[];
+    "image-path": string;
     detached: string[];
     cmd: string;
-    cwd: string;
+    "working-dir": string;
 }
 export type ConfigProperty = {
     name: string;

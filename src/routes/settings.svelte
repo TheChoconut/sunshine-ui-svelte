@@ -54,8 +54,8 @@
             <button
                 on:click={() => (currentTab = tab.id)}
                 class="{tab.id === currentTab
-                    ? 'font-medium bg-gray-200 border-2 border-b-0'
-                    : ''} w-40 px-3 h-8 rounded-tl-lg rounded-tr-lg text-md focus:outline-none">
+                    ? 'font-medium bg-gray-200 dark:text-black border-2 border-b-0'
+                    : ''} w-40 px-3 h-8 rounded-tl-lg dark:text-white rounded-tr-lg text-md focus:outline-none">
                 {tab.name}
             </button>
         {/each}

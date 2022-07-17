@@ -22,7 +22,6 @@
         loaded = true;
     })
 </script>
-
 {#if route !== '/welcome'}
     <Navbar {route} />
 {/if}

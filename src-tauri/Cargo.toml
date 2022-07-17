@@ -22,6 +22,7 @@ tokio = { version = "1.20.0", features = ["macros"] }
 futures = "0.3.21"
 serde = { version = "1.0", features = ["derive"] }
 tauri = { version = "1.0.4", features = ["api-all"] }
+percent-encoding = "2.1.0"
 
 [features]
 # by default Tauri runs in production mode

@@ -21,14 +21,14 @@ import Unpair from '$lib/icons/Unpair.svelte'
 </script>
 
 <content>
-    <div class="text-lg font-medium mb-4">
+    <div class="text-lg font-medium my-4 dark:text-white">
         Sunshine is a display streaming host for Moonlight clients using the GameStream protocol.
         <br />
         This UI was created using Svelte and Tailwind CSS.
     </div>
 
     <div class="mb-4">
-        <h2 class="font-bold text-lg">Quick actions</h2>
+        <h2 class="font-bold text-lg dark:text-white">Quick actions</h2>
         <div class="flex gap-4 items-center h-10 mt-3">
             {#if quickAction.active}
                 <Spinner />

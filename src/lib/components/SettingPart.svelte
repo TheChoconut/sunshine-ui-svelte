@@ -5,10 +5,10 @@
     if (inputType === 'long') inputWidth = 'max-w-sm';
     else if (inputType === 'full') inputWidth = '';
 </script>
-<div class="flex {inputType === 'full' ? 'flex-col' : ''} border-b py-4">
-    <div class="flex-1">
+<div class="flex {inputType === 'full' ? 'flex-col' : ''} border-b dark:border-neutral-800 py-4">
+    <div class="flex-1 dark:text-white">
         <slot name="title"></slot>
-        <div class="text-gray-500 pl-2 pt-2 italic">
+        <div class="text-gray-500 dark:text-gray-300 pl-2 pt-2 italic">
             <slot name="help"></slot>
         </div>
     </div>

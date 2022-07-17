@@ -49,10 +49,10 @@
         <div slot="paragraph" class="w-full min-h-[380px] flex flex-col">
             <div class="flex items-center justify-center space-x-4">
                 <img class="w-14 h-14" src="/sunshine.png" alt="Sunshine Icon" />
-                <div class="text-center font-medium text-4xl">Sunshine</div>
+                <div class="text-center dark:text-white font-medium text-4xl">Sunshine</div>
             </div>
             {#if formState == 0}
-                <div class="text-gray-500 w-full text-xl py-4 text-center px-10">
+                <div class="text-gray-500 dark:text-gray-300 w-full text-xl py-4 text-center px-10">
                     Connect to Sunshine API
                 </div>
                 {#if error}
@@ -89,12 +89,12 @@
             {:else if formState == 1}
                 <div class="flex-1 w-full h-full flex flex-col justify-center items-center gap-2">
                     <Spinner size="16" />
-                    <span class="text-xl font-medium mt-2">Connecting...</span>
+                    <span class="text-xl font-medium dark:text-white mt-2">Connecting...</span>
                 </div>
             {:else if formState == 2}
                 <span class="text-gray-500 w-full text-xl py-4 text-center px-10"
                     >Invalid certificate</span>
-                <p class="text-justify mb-2">
+                <p class="text-justify mb-2 dark:text-white">
                     Sunshine by default uses a self-signed certificate to achieve an HTTPS
                     connection. You need to provide the server certificate file located in
                     Sunshine's credentials directory in order to connect. This file is located at

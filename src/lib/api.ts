@@ -7,7 +7,7 @@ import { APIConfiguration } from './store';
 import { nanoid } from 'nanoid';
 import { goto } from '$app/navigation';
 
-export const EmptySunshineApp: () => SunshineApplication = () => ({ id: nanoid(), name: "Untitled", output: "", "prep-cmd": [], detached: [], cmd: "", cwd: "" })
+export const EmptySunshineApp: () => SunshineApplication = () => ({ id: nanoid(), name: "Untitled", "image-path": "", output: "", "prep-cmd": [], detached: [], cmd: "", "working-dir": "" })
 
 const ServerAPIEvents = { active: false, unlistenFn: null };
 

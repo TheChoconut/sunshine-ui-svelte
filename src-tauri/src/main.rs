@@ -4,6 +4,7 @@
 )]
 use std::{fs::File};
 use std::io::Read;
+use reqwest::StatusCode;
 use reqwest_eventsource::EventSource;
 use serde::{Deserialize, Serialize};
 use futures::{StreamExt};
@@ -144,6 +145,46 @@ fn main() {
   let app = tauri::Builder::default()
     .manage(AppState(client, cert.ok(), std::sync::Mutex::new(None)))
     .invoke_handler(tauri::generate_handler![fetch, start_sse, stop_sse])
+    .register_uri_scheme_protocol("sunshine", move |_app, request| {
+      
+      let response = tauri::http::ResponseBuilder::new();
+
+      // Get wanted path.
+      #[cfg(target_os = "windows")]
+      let path = request.uri().strip_prefix("sunshine://localhost/").unwrap();
+      #[cfg(not(target_os = "windows"))]
+      let path = request.uri().strip_prefix("sunshine://").unwrap();
+      let path = percent_encoding::percent_decode(path.as_bytes())
+        .decode_utf8_lossy()
+        .to_string();
+
+      // Make an HTTPS request.
+      let mut headers = reqwest::header::HeaderMap::new();
+      headers.insert(reqwest::header::USER_AGENT, "Sunshine RustUI v0.0.1-beta".parse().unwrap());
+
+      let state: tauri::State<AppState> = _app.state();
+      let client: &reqwest::Client = &state.0;
+      
+      let result = client.request(reqwest::Method::GET, path)
+        .headers(headers)
+        .send();
+      
+      let rt = tokio::runtime::Runtime::new().unwrap();
+      let result = rt.block_on(result);
+
+      let result = match result {
+        Ok(response) => response,
+        Err(_error) => { return response.mimetype("text/plain").status(404).body(Vec::new()); }
+      };
+      
+      if result.status() != StatusCode::OK {
+        return response.mimetype("text/plain").status(404).body(Vec::new());
+      }
+
+      let bytes = rt.block_on(result.bytes()).unwrap();
+
+      response.mimetype("image/png").status(200).body(bytes.to_vec())
+    })
     .build(tauri::generate_context!())
     .expect("error while running tauri application");
   

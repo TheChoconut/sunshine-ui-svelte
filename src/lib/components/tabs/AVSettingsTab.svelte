@@ -6,7 +6,7 @@
 
     import SettingPart from '../SettingPart.svelte';
 
-    const config = getContext('SunshineSettings') as Writable<SunshineConfiguration>;
+    const config = getContext<Writable<SunshineConfiguration>>('SunshineSettings');
 </script>
 <SettingPart inputType='long'>
     <span slot="title">Audio Sink</span>

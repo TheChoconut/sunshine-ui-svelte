@@ -5,7 +5,7 @@
   import SettingPart from '../SettingPart.svelte';
   import { Input, Select, Toggle } from 'flowbite-svelte';
 
-    const config = getContext('SunshineSettings') as Writable<SunshineConfiguration>;
+    const config = getContext<Writable<SunshineConfiguration>>('SunshineSettings');
 </script>
 <SettingPart>
     <span slot="title">Your PC name</span>

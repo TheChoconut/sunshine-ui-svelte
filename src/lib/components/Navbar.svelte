@@ -42,7 +42,7 @@
         {/each}
         <div class="absolute h-[3px] w-[100px] bottom-0 left-0 block bg-accent-500 transition-all transform" style="--tw-translate-x: {selectedIndex * 100}px"></div>
     </div>
-    <button on:click={() => logout()} class="w-24 h-16 m-2 flex flex-col items-center transition-colors justify-center absolute top-0 right-2 hover:text-accent-500 dark:text-white">
+    <button on:click={() => logout()} class="w-24 h-16 m-2 flex flex-col items-center transition-colors justify-center absolute top-0 right-2 dark:text-white dark:hover:text-accent-500 hover:text-accent-500">
         <Logout />
         <span class="">Disconnect</span>
       </button>

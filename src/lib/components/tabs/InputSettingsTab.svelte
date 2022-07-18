@@ -6,7 +6,7 @@
     import SettingPart from '../SettingPart.svelte';
 import { Input } from 'flowbite-svelte';
 
-    const config = getContext('SunshineSettings') as Writable<SunshineConfiguration>;
+    const config = getContext<Writable<SunshineConfiguration>>('SunshineSettings');
 </script>
 <SettingPart>
     <span slot="title">Back button timeout</span>

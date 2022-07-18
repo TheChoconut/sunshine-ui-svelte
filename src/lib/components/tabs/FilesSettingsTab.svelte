@@ -20,7 +20,7 @@
         }
     }
 
-    const config = getContext('SunshineSettings') as Writable<SunshineConfiguration>;
+    const config = getContext<Writable<SunshineConfiguration>>('SunshineSettings');
 </script>
 <SettingPart inputType='long'>
     <span slot="title">Private key</span>

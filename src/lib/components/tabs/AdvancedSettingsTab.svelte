@@ -5,7 +5,7 @@
     import type { Writable } from 'svelte/store';
     import SettingPart from '../SettingPart.svelte';
 
-    const config = getContext('SunshineSettings') as Writable<SunshineConfiguration>;
+    const config = getContext<Writable<SunshineConfiguration>>('SunshineSettings');
 </script>
 <SettingPart>
     <span slot="title">Port</span>

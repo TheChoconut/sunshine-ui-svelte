@@ -20,10 +20,10 @@
 
   <p align="center">
     Sunshine is a display streaming host for Moonlight clients using the GameStream protocol.<br>
-    This UI was created using Svelte and Tailwind CSS.
+    Sunshine UI is a graphical interface for <a href="https://github.com/SunshineStream/Sunshine">Sunshine</a>. <br />
     <br />
     <br />
-    <a href="https://github.com/TheChoconut/sunshine-ui-svelte">View Demo</a>
+    <a href="https://github.com/TheChoconut/sunshine-ui-svelte/releases">Download</a>
     ·
     <a href="https://github.com/TheChoconut/sunshine-ui-svelte/issues">Report Bug</a>
     ·
@@ -65,7 +65,7 @@
 ## About The Project
 
 Sunshine is a display streaming host for Moonlight clients using the GameStream protocol.<br>
-This UI was created using Tauri, Svelte and Tailwind CSS.
+Sunshine UI was created using Svelte, Tailwind CSS, Flowbite and Tauri.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -73,9 +73,10 @@ This UI was created using Tauri, Svelte and Tailwind CSS.
 
 ### Built With
 
-* [Tauri](https://nextjs.org/)
+* [Tauri](https://tauri.app/)
 * [Svelte](https://svelte.dev/)
 * [Tailwind CSS](https://tailwindcss.com)
+* [Flowbite](https://flowbite.com/)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -88,7 +89,9 @@ This is an example of how you may give instructions on setting up your project l
 To get a local copy up and running follow these simple example steps.
 
 ### Build
-
+0. Install prerequisites
+  Check out [Tauri's prerequisites](https://tauri.app/v1/guides/getting-started/prerequisites) for more information on how to setup Rust toolchain. <br />
+  You will also need to install [Node](https://nodejs.org/) and [PNPM](https://pnpm.io/).
 1. Clone the repo
    ```sh
    git clone https://github.com/TheChoconut/sunshine-ui-svelte.git
@@ -97,9 +100,8 @@ To get a local copy up and running follow these simple example steps.
    ```sh
    pnpm install
    ```
-3. Run `pnpm tauri dev` and `pnpm dev`
+3. Run `pnpm tauri dev`
    ```sh
-   pnpm dev &
    pnpm tauri dev
    ```
 
@@ -119,9 +121,9 @@ Use this space to show useful examples of how a project can be used. Additional 
 <!-- ROADMAP -->
 ## Roadmap
 
-- [ ] Make UI more consistent
-- [ ] Game Import
-- [ ] Application Library
+- [ ] Consistency in styling
+- [ ] Improve home page
+- [ ] Bug fixing!
 
 See the [open issues](https://github.com/TheChoconut/sunshine-ui-svelte/issues) for a full list of proposed features (and known issues).
 
@@ -168,9 +170,8 @@ Project Link: [https://github.com/TheChoconut/sunshine-ui-svelte](https://github
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
 
-* []()
-* []()
-* []()
+* [Sunshine](https://github.com/SunshineStream/Sunshine)
+* [Moonlight Game Streaming](https://moonlight-stream.org/)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

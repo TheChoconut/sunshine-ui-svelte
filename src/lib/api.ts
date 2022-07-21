@@ -36,14 +36,17 @@ export async function APIRequest<T extends keyof APIResponseTypes>(type: T, data
         });
 }
 
-export async function APIAuthenticate(password: string): Promise<boolean> {
+export async function sha256(text: string) {
     const encoder = new TextEncoder();
-    const data = encoder.encode(password);
+    const data = encoder.encode(text);
     const hashBuffer = await crypto.subtle.digest('SHA-256', data);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+}
 
-    return invoke('fetch', { url: getEndpointUrl('auth'), body: hashHex, method: 'POST', authorization: '' })
+export async function APIAuthenticate(password: string): Promise<boolean> {
+
+    return invoke('fetch', { url: getEndpointUrl('auth'), body: await sha256(password), method: 'POST', authorization: '' })
         .then((res: string) => JSON.parse(res))
         .then(async (res) => {
             if (res.code === 200) {
@@ -119,7 +122,7 @@ async function handleServerEvent(res: string) {
 
 export async function TryTestConnection(checkForAuth: boolean, suppliedConfig?: APIProps): Promise<ConnectionResult> {
     const config = suppliedConfig || get(APIConfiguration);
-    if (config.token === "") return;
+    if (checkForAuth && !config.token) return;
 
     const result = await APIRequest('api_version')
         .then((result) => {

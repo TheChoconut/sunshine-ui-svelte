@@ -10,23 +10,23 @@
     let route = $page.url.pathname
     $: route = $page.url.pathname
 
-    let loaded = false;
+    let loaded = false
 
     onMount(async () => {
-        if (
-            (await TryTestConnection(true)) !== ConnectionResult.CONNECTION_OK &&
-            $page.url.pathname !== '/welcome'
-        ) {
-            goto('/welcome')
+        if ($page.url.pathname !== '/welcome') {
+            if ((await TryTestConnection(true)) !== ConnectionResult.CONNECTION_OK) {
+                goto('/welcome')
+            }
         }
-        loaded = true;
+        loaded = true
     })
 </script>
+
 {#if route !== '/welcome'}
     <Navbar {route} />
 {/if}
 <container class="lg:(container mx-auto) mx-4 flex">
     {#if loaded}
-    <slot />
+        <slot />
     {/if}
 </container>

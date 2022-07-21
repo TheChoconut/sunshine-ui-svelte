@@ -57,7 +57,7 @@ export type ConfigProperty = {
     type: "int" | "double" | "string" | "int_array" | "string_array" | "file" | "boolean" | "custom";
 }
 
-export type GenericResponse = { type: string; result: boolean; authenticated: string; }
+export type GenericResponse = { type: string; authenticated: string; } & ({result: true} | { result: false; error: string; })
 export type ApplicationsGetAPIResult = GenericResponse & { content: string }
 export type ConfigGetAPIResult = GenericResponse & SunshineConfiguration
 export type APIVersionResult = GenericResponse & { api_version: string; version: string; }
@@ -73,7 +73,8 @@ export type APIResponseTypes = {
     'save_app': GenericResponse,
     'save_pin': GenericResponse,
     'close_app': GenericResponse,
-    'unpair_all': GenericResponse
+    'unpair_all': GenericResponse,
+    'change_password': GenericResponse
 }
 
 export type APIProps = {
@@ -85,7 +86,7 @@ export type APIProps = {
         auth: string;
         appAsset: string;
     }
-    token: string;
+    token?: string;
 }
 
 export enum ConnectionResult {

@@ -17,8 +17,9 @@
     import { onMount } from 'svelte'
     import { fly } from 'svelte/transition'
     import { Check, X } from 'svelte-heros'
-    import { Button, Input } from 'flowbite-svelte'
+    import { AccordionFlush, Button, Input } from 'flowbite-svelte'
     import { open } from '@tauri-apps/api/dialog'
+    import { type } from '@tauri-apps/api/os'
 
     let app: SunshineApplication | null = null,
         updateApp: (app: SunshineApplication | { id: string }) => void
@@ -56,15 +57,12 @@
     }
 
     const findFile = async (fileName: string, fileExt: string[], target: string) => {
-        const selected = await open({
-            filters: [
-                {
-                    name: `${fileName}`,
-                    extensions: fileExt
-                }
-            ]
-        })
+        let filters = [{ name: fileName, extensions: fileExt }]
+        if (fileExt.includes('exe') && (await type()) !== 'Windows_NT') {
+            filters = []
+        }
 
+        const selected = await open({ filters })
         if (selected) {
             app[target] = selected
         }
@@ -72,7 +70,7 @@
 
     let CodeJar
     onMount(async () => {
-        ({ CodeJar } = await import('@novacbn/svelte-codejar'))
+        CodeJar = (await import('@novacbn/svelte-codejar')).CodeJar
     })
 
     export { app, updateApp }
@@ -121,44 +119,66 @@
                     The main application started.<br />If empty, a process that sleeps indefinitely
                     is used.
                 </p>
-                <Input slot="input" bind:value={app.cmd} class="w-full" />
-            </SettingPart>
-            <SettingPart inputType={'full'}>
-                <h4 slot="title" class="text-md font-medium">Cover image</h4>
-                <p slot="help" class="italic text-gray-500 dark:text-gray-300 mb-1">
-                    Application icon/picture/image path that will be sent to client. <br />
-                    Image must be a PNG file. <br />
-                    If not set, Sunshine will send default box image.
-                </p>
-                <div slot="input" class="w-full space-x-2 flex items-center">
-                    <Button
-                        on:click={() => findFile('Image file', ['png'], 'image-path')}
-                        color="light">Find file</Button>
-                    <Input bind:value={app['image-path']} class="flex-1" />
+                <div slot="input" class="flex w-full space-x-2 items-center">
+                    <Button on:click={() => findFile('Executable', ['exe', 'bat', 'ps1', 'cmd', 'com', 'vbs'], 'cmd')} color="light"
+                        >Find executable</Button>
+                    <Input bind:value={app.cmd} class="flex-1" />
                 </div>
             </SettingPart>
-            <SettingPart>
-                <h4 slot="title" class="text-md font-medium">Output file</h4>
-                <p slot="help" class="dark:text-gray-300">Command output will be saved in this file.<br />Ignored if empty.</p>
-                <Input slot="input" type="text" bind:value={app.output} class="w-60" />
-            </SettingPart>
-            <SettingPart>
-                <h4 slot="title" class="text-md font-medium">Working directory</h4>
-                <p slot="help" class="dark:text-gray-300">
-                    The working directory that should be passed to the process. <br /> Some
-                    applications use the working directory <br /> to search for configuration files.<br />
-                    Default: parent directory of the command
-                </p>
-                <Input
-                    slot="input"
-                    placeholder="C:\path\to\game\dir"
-                    bind:value={app['working-dir']}
-                    type="text"
-                    class="w-60" />
-            </SettingPart>
+            <AccordionFlush id="1">
+                <h2 slot="header" class="dark:text-white text-black">
+                    Cover image <sm class="text-sm text-gray-400">OPTIONAL</sm>
+                </h2>
+                <div slot="body">
+                    <p class="ml-2 italic text-gray-500 dark:text-gray-300 mb-2">
+                        Application icon that will be sent to client.
+                    </p>
+                    <div class="flex w-full space-x-2 items-center">
+                        <Button
+                            on:click={() => findFile('Text file', ['txt', 'log'], 'output')}
+                            color="light">Find file</Button>
+                        <Input bind:value={app.output} class="flex-1" />
+                    </div>
+                </div>
+            </AccordionFlush>
+            <AccordionFlush id="2">
+                <h2 slot="header" class="dark:text-white text-black">
+                    Output file <sm class="text-sm text-gray-400">OPTIONAL</sm>
+                </h2>
+                <div slot="body">
+                    <p class="ml-2 italic text-gray-500 dark:text-gray-300 mb-2">
+                        Command output will be saved in this file.
+                    </p>
+                    <div class="flex w-full space-x-2 items-center">
+                        <Button
+                            on:click={() => findFile('Text file', ['txt', 'log'], 'output')}
+                            color="light">Find file</Button>
+                        <Input bind:value={app.output} class="flex-1" />
+                    </div>
+                </div>
+            </AccordionFlush>
+            <AccordionFlush id="3">
+                <h2 slot="header" class="dark:text-white text-black">
+                    Working directory <sm class="text-sm text-gray-400">OPTIONAL</sm>
+                </h2>
+                <div slot="body">
+                    <p class="ml-2 italic text-gray-500 dark:text-gray-300 mb-2">
+                        The working directory that should be passed to the process. <br />
+                        Some applications use the working directory to search for configuration files.
+                        <br />
+                        Default: parent directory of the command
+                    </p>
+                    <div class="flex w-full space-x-2 items-center">
+                        <Button
+                            on:click={() => findFile('Text file', ['txt', 'log'], 'output')}
+                            color="light">Find file</Button>
+                        <Input bind:value={app.output} class="flex-1" />
+                    </div>
+                </div>
+            </AccordionFlush>
             <h4 class="text-md font-medium mt-4">Detached scripts</h4>
             <p class="italic text-gray-500 dark:text-gray-300 mb-2">
-                Selected scripts you would like to be run alongside the main command.
+                Scripts you would like to be run alongside the main command.
             </p>
             {#if CodeJar}
                 <svelte:component

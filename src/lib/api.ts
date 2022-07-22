@@ -27,7 +27,7 @@ export async function APIRequest<T extends keyof APIResponseTypes>(type: T, data
         })
         .catch((err) => {
             console.debug('API request failed',err);
-            if (err.includes("not trusted")) {
+            if (err.includes("not trusted") || err.includes("self-signed")) {
                 throw ConnectionResult.INVALID_CERTIFICATE;
             } else {
                 TestConnection(true);

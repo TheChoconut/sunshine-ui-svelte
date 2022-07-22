@@ -122,7 +122,7 @@ async fn stop_sse(state: tauri::State< '_,AppState>) -> Result<String, String> {
 
 fn read_certificate_file() -> Result<reqwest::Certificate, Box<dyn std::error::Error>> {
   let mut buf = Vec::new();
-  let mut file = File::open("../cacert.pem")?;
+  let mut file = File::open("cacert.pem")?;
   file.read_to_end(&mut buf)?;
   match reqwest::Certificate::from_pem(&buf) {
     Ok(cert) => return Ok(cert),
